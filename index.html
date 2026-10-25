@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star OS v7.5 Enterprise</title>
+    <title>Star OS v9.0 Ultra Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -62,7 +62,6 @@
 
         .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Dynamic Desktop Background Layer */
         #desktopBgLayer {
             position: absolute;
             inset: 0;
@@ -110,14 +109,14 @@
         }
 
         .glass-panel {
-            background: rgba(10, 16, 30, 0.85);
-            backdrop-filter: blur(24px);
+            background: rgba(10, 16, 30, 0.88);
+            backdrop-filter: blur(28px);
             border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
         }
 
         .taskbar-glass {
-            background: rgba(6, 10, 20, 0.88);
+            background: rgba(6, 10, 20, 0.92);
             backdrop-filter: blur(28px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -153,21 +152,6 @@
             z-index: 99999 !important;
         }
 
-        .fullscreen-overlay-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: rgba(10, 16, 30, 0.95);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            z-index: 100000;
-        }
-
         .window-header {
             cursor: move;
             background: rgba(20, 30, 48, 0.92);
@@ -178,7 +162,6 @@
         ::-webkit-scrollbar-track { background: #02040a; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
 
-        /* BOOT LOADER ANIMATIONS */
         #bootScreen {
             transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -232,7 +215,7 @@
             </div>
         </div>
         <h1 class="text-5xl font-black tracking-widest text-white mb-2">STAR<span class="text-sky-400">OS</span></h1>
-        <p class="text-xs text-slate-400 mb-8 mono tracking-widest">ENTERPRISE CORE V7.5</p>
+        <p class="text-xs text-slate-400 mb-8 mono tracking-widest">ULTRA OS ENGINE V9.0</p>
         <div class="w-full max-w-xs">
             <div class="h-1.5 rounded-full bg-slate-900 border border-slate-800/80 overflow-hidden shadow-inner">
                 <div id="bootBar" class="h-full w-0 bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-500 transition-all duration-300 rounded-full"></div>
@@ -247,12 +230,12 @@
                 <i data-lucide="shield-check" class="w-8 h-8"></i>
             </div>
             <h2 id="authTitle" class="text-xl font-bold text-white mb-1">Account Sign In</h2>
-            <p id="authSub" class="text-xs text-slate-400 mb-6 text-center">Enter credentials to access Star OS</p>
+            <p id="authSub" class="text-xs text-slate-400 mb-6 text-center">Access your Star OS Profile</p>
 
             <div class="w-full space-y-3">
                 <div>
                     <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Username</label>
-                    <input type="text" id="authUsername" placeholder="e.g. William" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                    <input type="text" id="authUsername" placeholder="Enter username..." class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-sky-400">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Password</label>
@@ -283,18 +266,6 @@
 
             <!-- DISCORD CHAT WINDOW -->
             <div id="chatWindow" class="os-window hidden w-[940px] h-[620px] top-8 left-24" style="z-index: 101;">
-                <!-- Fullscreen Top Control Bar -->
-                <div class="fullscreen-overlay-bar hidden" id="chatFullscreenBar">
-                    <div class="flex items-center gap-2">
-                        <span class="text-purple-400 font-bold">#</span>
-                        <span class="text-xs font-bold text-white">Discord Workspace (Fullscreen)</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="toggleFullscreen('chatWindow')" class="px-3 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-bold">Exit Fullscreen</button>
-                        <button onclick="closeWindow('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
-
                 <div class="window-header px-4 py-2.5 flex items-center justify-between bg-[#1e1f22]" onmousedown="dragMouseDown(event, 'chatWindow')">
                     <div class="flex items-center gap-2"><span class="text-base font-bold text-purple-400">#</span><span id="activeChannelTitle" class="text-xs font-bold text-white">general-lounge</span></div>
                     <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
@@ -358,12 +329,22 @@
                 </div>
                 <div class="flex-1 p-6 bg-slate-950 grid grid-cols-2 gap-6 overflow-y-auto">
                     <div class="space-y-4">
-                        <h3 class="font-bold text-white text-xs uppercase tracking-wider">Local Apps (IndexedDB)</h3>
-                        <label class="block p-5 border border-dashed border-sky-400/40 rounded-2xl text-center cursor-pointer bg-sky-500/5 hover:bg-sky-500/10 transition"><span class="text-xs font-bold text-sky-300">Import HTML App (Up to 250MB)</span><input type="file" accept=".html" class="hidden" onchange="importAppFile(event)"></label>
+                        <h3 class="font-bold text-white text-xs uppercase tracking-wider">Local Apps & Uploads</h3>
+                        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                            <label class="block p-4 border border-dashed border-sky-400/40 rounded-xl text-center cursor-pointer bg-sky-500/5 hover:bg-sky-500/10 transition"><span class="text-xs font-bold text-sky-300">Import HTML File App</span><input type="file" accept=".html" class="hidden" onchange="importAppFile(event)"></label>
+                            <div class="space-y-2">
+                                <input type="text" id="pubWebTitle" placeholder="Website / App Title" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+                                <input type="text" id="pubWebUrl" placeholder="Live Web URL (e.g. https://example.com)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+                                <button onclick="publishWebUrl()" class="w-full py-2 rounded-xl bg-purple-600 text-white font-bold text-xs hover:bg-purple-500 transition">Publish Web App</button>
+                            </div>
+                        </div>
                         <div id="localAppsList" class="space-y-2"></div>
                     </div>
                     <div class="space-y-4">
-                        <h3 class="font-bold text-white text-xs uppercase tracking-wider">Public Firebase Catalogue</h3>
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-white text-xs uppercase tracking-wider">Public Catalogue</h3>
+                            <input type="text" id="searchGlobalAppsInput" oninput="loadGlobalApps()" placeholder="Search apps..." class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none">
+                        </div>
                         <div id="globalAppsList" class="space-y-2"></div>
                     </div>
                 </div>
@@ -381,7 +362,94 @@
                 </div>
             </div>
 
-            <!-- OUTLOOK MAIL WINDOW -->
+            <!-- RUNNER WINDOW FOR APPS -->
+            <div id="appRunnerWindow" class="os-window hidden w-[900px] h-[600px] top-10 left-20" style="z-index: 110;">
+                <div class="window-header px-4 py-2.5 flex items-center justify-between" onmousedown="dragMouseDown(event, 'appRunnerWindow')">
+                    <div class="flex items-center gap-2"><i data-lucide="play" class="w-4 h-4 text-sky-400"></i><span id="appRunnerTitle" class="text-xs font-bold text-white">App Sandbox</span></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('appRunnerWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('appRunnerWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('appRunnerWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 bg-white relative">
+                    <iframe id="appRunnerIframe" class="w-full h-full border-0"></iframe>
+                </div>
+            </div>
+
+            <!-- SETTINGS WINDOW -->
+            <div id="settingsWindow" class="os-window hidden w-[680px] h-[580px] top-16 left-44" style="z-index: 106;">
+                <div class="window-header px-4 py-3 flex items-center justify-between" onmousedown="dragMouseDown(event, 'settingsWindow')">
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-xl bg-emerald-400/20 border border-emerald-300/30 flex items-center justify-center text-emerald-300"><i data-lucide="settings" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white">System Settings</div></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 p-6 bg-slate-950 space-y-4 text-xs overflow-y-auto">
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <img id="settingsAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <span id="settingsUserDisplay" class="font-bold text-white block text-sm">User Profile</span>
+                                <span class="text-slate-400 text-[10px]">Local User Account</span>
+                            </div>
+                        </div>
+                        <button onclick="handleSignOut()" class="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold hover:bg-rose-500/30 transition">Sign Out</button>
+                    </div>
+
+                    <!-- App Launch Setting -->
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                        <span class="font-bold text-white block">App Execution Target</span>
+                        <div class="flex gap-4 items-center">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="appExecMode" value="sandbox" checked onchange="setAppExecMode('sandbox')">
+                                <span class="text-slate-300">Run in OS Window Sandbox</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="appExecMode" value="newtab" onchange="setAppExecMode('newtab')">
+                                <span class="text-slate-300">Run in New Browser Tab</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Accent Color Picker -->
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                        <span class="font-bold text-white block">System Accent Color Palette</span>
+                        <div class="flex items-center gap-3">
+                            <input type="color" id="accentColorPicker" value="#38bdf8" onchange="applyCustomAccentColor(this.value)" class="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0">
+                            <span class="text-slate-400 text-xs">Select any custom hex color from the palette selector</span>
+                        </div>
+                    </div>
+
+                    <!-- Wallpaper Customization -->
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+                        <span class="font-bold text-white block">Desktop Wallpaper Customization</span>
+                        <div class="space-y-2">
+                            <div class="flex gap-2">
+                                <input type="text" id="wallpaperUrlInput" placeholder="Enter image URL..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                                <button onclick="setWallpaperFromUrl()" class="px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold">Apply URL</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold cursor-pointer hover:bg-purple-500 transition">
+                                    Upload Background File
+                                    <input type="file" accept="image/*" class="hidden" onchange="setWallpaperFromFile(event)">
+                                </label>
+                                <button onclick="resetDefaultWallpaper()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Reset Aurora</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BROWSER & OUTLOOK SUITE WINDOWS -->
+            <div id="browserWindow" class="os-window hidden w-[880px] h-[560px] top-12 left-28" style="z-index: 105;">
+                <div class="window-header px-4 py-2.5 flex items-center justify-between" onmousedown="dragMouseDown(event, 'browserWindow')">
+                    <div class="flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-sky-400"></i><span class="text-xs font-bold text-white">Star Browser</span></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 flex flex-col bg-[#030712] overflow-hidden">
+                    <div class="p-2 border-b border-slate-800 flex items-center gap-2"><input type="text" id="urlInput" onkeydown="if(event.key==='Enter')navigateToUrl()" placeholder="Enter URL..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"></div>
+                    <div class="flex-1 relative w-full h-full overflow-hidden">
+                        <div id="pagePolarisHome" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"><i data-lucide="sparkles" class="w-12 h-12 text-sky-400 mb-4"></i><h2 class="text-xl font-bold text-white mb-2">StarNetwork.io</h2><p class="text-xs text-slate-400">High-Speed Web Browser Interface</p></div>
+                        <iframe id="browserIframe" class="absolute inset-0 w-full h-full border-0 hidden bg-white"></iframe>
+                    </div>
+                </div>
+            </div>
+
             <div id="mailWindow" class="os-window hidden w-[900px] h-[580px] top-16 left-36" style="z-index: 104;">
                 <div class="window-header px-4 py-2.5 flex items-center justify-between bg-slate-900" onmousedown="dragMouseDown(event, 'mailWindow')">
                     <div class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-sky-400"></i><span class="text-xs font-bold text-white">Outlook Mail (<span id="userMailHandle" class="text-sky-400">user@star</span>)</span></div>
@@ -401,69 +469,6 @@
                             <input type="text" id="mailSubject" placeholder="Subject" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
                             <textarea id="mailBody" rows="6" placeholder="Write message..." class="w-full flex-1 bg-slate-950 border border-slate-700 rounded-xl p-3.5 text-xs text-white focus:outline-none"></textarea>
                             <div class="flex justify-end gap-2"><button onclick="hideComposeMail()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300">Cancel</button><button onclick="sendMail()" class="px-6 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold">Send</button></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- BROWSER WINDOW -->
-            <div id="browserWindow" class="os-window hidden w-[880px] h-[560px] top-12 left-28" style="z-index: 105;">
-                <div class="window-header px-4 py-2.5 flex items-center justify-between" onmousedown="dragMouseDown(event, 'browserWindow')">
-                    <div class="flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-sky-400"></i><span class="text-xs font-bold text-white">Star Browser</span></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
-                </div>
-                <div class="flex-1 flex flex-col bg-[#030712] overflow-hidden">
-                    <div class="p-2 border-b border-slate-800 flex items-center gap-2"><input type="text" id="urlInput" onkeydown="if(event.key==='Enter')navigateToUrl()" placeholder="Enter URL..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"></div>
-                    <div class="flex-1 relative w-full h-full overflow-hidden">
-                        <div id="pagePolarisHome" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"><i data-lucide="sparkles" class="w-12 h-12 text-sky-400 mb-4"></i><h2 class="text-xl font-bold text-white mb-2">StarNetwork.io</h2><p class="text-xs text-slate-400">High-Speed Web Browser Interface</p></div>
-                        <iframe id="browserIframe" class="absolute inset-0 w-full h-full border-0 hidden bg-white"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SETTINGS WINDOW -->
-            <div id="settingsWindow" class="os-window hidden w-[680px] h-[560px] top-16 left-44" style="z-index: 106;">
-                <div class="window-header px-4 py-3 flex items-center justify-between" onmousedown="dragMouseDown(event, 'settingsWindow')">
-                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-xl bg-emerald-400/20 border border-emerald-300/30 flex items-center justify-center text-emerald-300"><i data-lucide="settings" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white">System Settings</div></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
-                </div>
-                <div class="flex-1 p-6 bg-slate-950 space-y-4 text-xs overflow-y-auto">
-                    <!-- User Profile Banner -->
-                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <img id="settingsAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" class="w-10 h-10 rounded-full object-cover">
-                            <div>
-                                <span id="settingsUserDisplay" class="font-bold text-white block text-sm">William</span>
-                                <span class="text-slate-400 text-[10px]">Active Local User Profile</span>
-                            </div>
-                        </div>
-                        <button onclick="handleSignOut()" class="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold hover:bg-rose-500/30 transition">Sign Out</button>
-                    </div>
-
-                    <!-- Custom Accent Color Picker -->
-                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-                        <span class="font-bold text-white block">System Accent Color Palette</span>
-                        <div class="flex items-center gap-3">
-                            <input type="color" id="accentColorPicker" value="#38bdf8" onchange="applyCustomAccentColor(this.value)" class="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0">
-                            <span class="text-slate-400 text-xs">Select any custom hex color from the palette selector</span>
-                        </div>
-                    </div>
-
-                    <!-- Wallpaper Selector (URL or File Upload) -->
-                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-                        <span class="font-bold text-white block">Desktop Wallpaper Customization</span>
-                        <div class="space-y-2">
-                            <div class="flex gap-2">
-                                <input type="text" id="wallpaperUrlInput" placeholder="Enter image URL..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-                                <button onclick="setWallpaperFromUrl()" class="px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold">Apply URL</button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <label class="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold cursor-pointer hover:bg-purple-500 transition">
-                                    Upload Background File
-                                    <input type="file" accept="image/*" class="hidden" onchange="setWallpaperFromFile(event)">
-                                </label>
-                                <button onclick="resetDefaultWallpaper()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Reset Aurora</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -503,12 +508,12 @@
 
         let isRegistering = false;
         let currentUser = null;
-        let targetModalUser = null;
-        let serverListCache = [
-            { id: 'general', name: 'general-lounge', locked: false },
-            { id: 'dev', name: 'dev-chat', locked: false },
-            { id: 'vip', name: 'vip-lounge', locked: true, pass: 'star123' }
-        ];
+        let appExecMode = localStorage.getItem('star_app_exec_mode') || 'sandbox';
+
+        function setAppExecMode(mode) {
+            appExecMode = mode;
+            localStorage.setItem('star_app_exec_mode', mode);
+        }
 
         function toggleAuthMode() {
             isRegistering = !isRegistering;
@@ -571,7 +576,6 @@
                 window.firebaseApp.signInAnonymously(window.firebaseApp.auth);
             }
             document.getElementById('discordUserName').textContent = user.username;
-            document.getElementById('discordUserPartner').textContent = 'Lover: ' + (user.partner || 'None');
             document.getElementById('chatUserAvatar').src = user.avatar;
             document.getElementById('settingsAvatar').src = user.avatar;
             document.getElementById('userMailHandle').textContent = user.username.toLowerCase() + '@star';
@@ -584,7 +588,6 @@
             loadGlobalApps();
             loadFiles();
             renderDesktopAppGrid();
-            renderChannelList();
         }
 
         function checkAuth() {
@@ -646,11 +649,7 @@
         }
         function closeWindow(id) {
             const win = document.getElementById(id);
-            if (win) { 
-                win.classList.add('hidden'); 
-                win.classList.remove('fullscreen'); 
-                if (id === 'chatWindow') document.getElementById('chatFullscreenBar').classList.add('hidden');
-            }
+            if (win) { win.classList.add('hidden'); win.classList.remove('fullscreen'); }
         }
         function minimizeWindow(id) {
             const win = document.getElementById(id);
@@ -661,11 +660,6 @@
             if (!win) return;
             win.classList.toggle('fullscreen');
             win.style.zIndex = ++activeZ;
-
-            if (id === 'chatWindow') {
-                const bar = document.getElementById('chatFullscreenBar');
-                bar.classList.toggle('hidden', !win.classList.contains('fullscreen'));
-            }
         }
         function toggleTaskbarApp(id) {
             const win = document.getElementById(id);
@@ -701,56 +695,8 @@
             iframe.src = /^https?:\/\//i.test(val) ? val : 'https://' + val;
         }
 
-        // Discord Server & Channel Management
+        // Discord Chat
         let activeChannel = 'general';
-
-        function renderChannelList(filter = '') {
-            const list = document.getElementById('discordChannelList');
-            if (!list) return;
-            list.innerHTML = '';
-
-            serverListCache.filter(s => s.name.includes(filter.toLowerCase())).forEach(s => {
-                const btn = document.createElement('button');
-                btn.className = `w-full text-left px-2.5 py-2 rounded font-semibold flex items-center justify-between text-xs ${activeChannel === s.id ? 'bg-[#3f4248] text-white' : 'hover:bg-[#35373c] text-slate-300'}`;
-                btn.onclick = () => selectChannel(s);
-                btn.innerHTML = `<span># ${s.name}</span>${s.locked ? '<i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i>' : ''}`;
-                list.appendChild(btn);
-            });
-            lucide.createIcons();
-        }
-
-        function filterChannels() {
-            const val = document.getElementById('searchChannelInput').value.trim();
-            renderChannelList(val);
-        }
-
-        function selectChannel(server) {
-            if (server.locked) {
-                const pass = prompt(`Server "${server.name}" is locked. Enter password:`);
-                if (pass !== server.pass) {
-                    alert('Incorrect password!');
-                    return;
-                }
-            }
-            activeChannel = server.id;
-            document.getElementById('activeChannelTitle').textContent = server.name;
-            renderChannelList();
-            initFirebaseChat();
-        }
-
-        function createNewDiscordServer() {
-            const name = prompt("Enter new channel name:");
-            if (!name) return;
-            const lock = confirm("Do you want to lock this server with a password?");
-            let pass = '';
-            if (lock) pass = prompt("Set server password:") || '';
-
-            const id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-            serverListCache.push({ id, name: id, locked: lock && pass !== '', pass });
-            renderChannelList();
-            selectChannel({ id, name: id, locked: lock && pass !== '', pass });
-        }
-
         function initFirebaseChat() {
             if (!window.firebaseApp) return;
             const { db, ref, onValue } = window.firebaseApp;
@@ -767,15 +713,13 @@
                     
                     const avatarImg = document.createElement('img');
                     avatarImg.src = msg.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
-                    avatarImg.className = 'w-8 h-8 rounded-full object-cover shrink-0 cursor-pointer hover:opacity-80 transition';
-                    avatarImg.onclick = () => openUserProfileModal(msg.sender, msg.avatar, msg.partner || 'None');
+                    avatarImg.className = 'w-8 h-8 rounded-full object-cover shrink-0';
 
                     const textWrap = document.createElement('div');
                     textWrap.className = 'flex-1 min-w-0';
                     textWrap.innerHTML = `
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-white text-xs cursor-pointer hover:underline" onclick="openUserProfileModal('${msg.sender}', '${msg.avatar}', '${msg.partner || 'None'}')">${msg.sender}</span>
-                            <span class="text-[10px] text-pink-400 font-semibold">Lover: ${msg.partner || 'None'}</span>
+                            <span class="font-bold text-white text-xs">${msg.sender}</span>
                             <span class="text-[10px] text-slate-500 font-normal ml-auto">${new Date(msg.timestamp).toLocaleTimeString()}</span>
                         </div>
                         <div class="text-slate-300 text-xs mt-0.5">${msg.text || ''}</div>
@@ -790,54 +734,12 @@
             });
         }
 
-        function openUserProfileModal(username, avatar, partner) {
-            targetModalUser = { username, avatar, partner };
-            document.getElementById('modalUserAvatar').src = avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
-            document.getElementById('modalUserName').textContent = username;
-            document.getElementById('modalUserPartner').textContent = 'Lover: ' + (partner || 'None');
-            document.getElementById('userProfileModal').classList.remove('hidden');
-        }
-
-        function closeUserProfileModal() {
-            document.getElementById('userProfileModal').classList.add('hidden');
-        }
-
-        function sendPartnerRequest() {
-            if (!targetModalUser || !currentUser) return;
-            if (targetModalUser.username === currentUser.username) {
-                alert("You cannot partner with yourself!");
-                return;
-            }
-            if (confirm(`Accept partner connection with ${targetModalUser.username}?`)) {
-                currentUser.partner = targetModalUser.username;
-                localStorage.setItem('star_current_user', JSON.stringify(currentUser));
-                document.getElementById('discordUserPartner').textContent = 'Lover: ' + currentUser.partner;
-                closeUserProfileModal();
-                alert(`You are now linked with ${targetModalUser.username}!`);
-            }
-        }
-
-        function startDirectMessage() {
-            if (!targetModalUser) return;
-            closeUserProfileModal();
-            const dmChan = ['dm', currentUser.username, targetModalUser.username].sort().join('_');
-            activeChannel = dmChan;
-            document.getElementById('activeChannelTitle').textContent = `DM: ${targetModalUser.username}`;
-            initFirebaseChat();
-        }
-
         function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text || !window.firebaseApp || !currentUser) return;
             const { db, ref, push } = window.firebaseApp;
-            push(ref(db, 'chat/' + activeChannel), { 
-                sender: currentUser.username, 
-                avatar: currentUser.avatar, 
-                partner: currentUser.partner || 'None',
-                text, 
-                timestamp: Date.now() 
-            });
+            push(ref(db, 'chat/' + activeChannel), { sender: currentUser.username, avatar: currentUser.avatar, text, timestamp: Date.now() });
             input.value = '';
         }
 
@@ -848,19 +750,12 @@
             const reader = new FileReader();
             reader.onload = () => {
                 const { db, ref, push } = window.firebaseApp;
-                push(ref(db, 'chat/' + activeChannel), { 
-                    sender: currentUser.username, 
-                    avatar: currentUser.avatar, 
-                    partner: currentUser.partner || 'None',
-                    text: `Attached file: ${file.name}`, 
-                    attachment: reader.result, 
-                    timestamp: Date.now() 
-                });
+                push(ref(db, 'chat/' + activeChannel), { sender: currentUser.username, avatar: currentUser.avatar, text: `Attached file: ${file.name}`, attachment: reader.result, timestamp: Date.now() });
             };
             reader.readAsDataURL(file);
         }
 
-        // Outlook Mail
+        // Mail
         let activeMailTab = 'inbox';
         function switchMailTab(tab) { activeMailTab = tab; loadFirebaseMail(); }
         function showComposeMail() { document.getElementById('mailComposePane').classList.remove('hidden'); }
@@ -901,7 +796,7 @@
             });
         }
 
-        // DESKTOP & FILE SYSTEM APP MANAGEMENT
+        // APP PUBLISHING, EXECUTION & FILE SYSTEM ENGINE
         const MAX_UPLOAD_SIZE = 250 * 1024 * 1024;
 
         function openAppDB() {
@@ -921,7 +816,7 @@
             req.onsuccess = () => {
                 const customApps = (req.result || []).filter(a => a.onDesktop);
                 const customButtons = customApps.map(app => `
-                    <button onclick="runApp('${app.id}')" class="w-20 flex flex-col items-center gap-2 group">
+                    <button onclick="launchAppById('${app.id}')" class="w-20 flex flex-col items-center gap-2 group">
                         <div class="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-sky-400"><i data-lucide="play" class="w-7 h-7"></i></div>
                         <span class="text-xs font-semibold text-slate-200 drop-shadow truncate w-full text-center">${app.name}</span>
                     </button>
@@ -958,6 +853,59 @@
             };
         }
 
+        async function launchAppById(id) {
+            const db = await openAppDB();
+            const tx = db.transaction('apps', 'readonly');
+            const req = tx.objectStore('apps').get(id);
+            req.onsuccess = () => {
+                const app = req.result;
+                if (app) executeTargetContent(app.content, app.name, app.isUrl);
+            };
+        }
+
+        function executeTargetContent(content, title = 'App Sandbox', isUrl = false) {
+            if (isUrl) {
+                if (appExecMode === 'newtab') {
+                    window.open(content, '_blank');
+                } else {
+                    document.getElementById('appRunnerTitle').textContent = title;
+                    const iframe = document.getElementById('appRunnerIframe');
+                    openWindow('appRunnerWindow');
+                    iframe.src = content;
+                }
+            } else {
+                const blob = new Blob([content], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+                if (appExecMode === 'newtab') {
+                    window.open(blobUrl, '_blank');
+                } else {
+                    document.getElementById('appRunnerTitle').textContent = title;
+                    const iframe = document.getElementById('appRunnerIframe');
+                    openWindow('appRunnerWindow');
+                    iframe.src = blobUrl;
+                }
+            }
+        }
+
+        async function publishWebUrl() {
+            const title = document.getElementById('pubWebTitle').value.trim();
+            const url = document.getElementById('pubWebUrl').value.trim();
+            if (!title || !url) { alert('Enter title and URL.'); return; }
+            if (!window.firebaseApp || !currentUser) return;
+            const { db: fdb, ref, push } = window.firebaseApp;
+            push(ref(fdb, 'store/apps'), {
+                name: title,
+                content: url,
+                isUrl: true,
+                size: 0,
+                uploader: currentUser.username,
+                timestamp: Date.now()
+            });
+            document.getElementById('pubWebTitle').value = '';
+            document.getElementById('pubWebUrl').value = '';
+            alert(`Website "${title}" published globally!`);
+        }
+
         async function toggleDesktopShortcut(id) {
             const db = await openAppDB();
             const tx = db.transaction('apps', 'readwrite');
@@ -989,9 +937,40 @@
                     const card = document.createElement('div');
                     card.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center";
                     const pinLabel = app.onDesktop ? 'Remove Shortcut' : 'Pin to Desktop';
-                    card.innerHTML = `<div><div class="font-bold text-white text-xs">${app.name}</div><div class="text-[10px] text-slate-400">${(app.size/(1024*1024)).toFixed(2)} MB</div></div><div class="flex gap-1.5"><button onclick="runApp('${app.id}')" class="px-2.5 py-1 rounded bg-sky-500 text-slate-950 font-bold text-[10px]">Run</button><button onclick="toggleDesktopShortcut('${app.id}')" class="px-2.5 py-1 rounded bg-slate-800 text-sky-300 font-bold text-[10px]">${pinLabel}</button><button onclick="deleteLocalApp('${app.id}')" class="px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-[10px]">Delete</button></div>`;
+                    card.innerHTML = `
+                        <div>
+                            <div class="font-bold text-white text-xs">${app.name}</div>
+                            <div class="text-[10px] text-slate-400">${app.isUrl ? 'Web URL' : (app.size/(1024*1024)).toFixed(2) + ' MB'}</div>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="launchAppById('${app.id}')" class="px-2 py-1 rounded bg-sky-500 text-slate-950 font-bold text-[10px]">Run</button>
+                            <button onclick="publishAppToGlobal('${app.id}')" class="px-2 py-1 rounded bg-amber-500 text-slate-950 font-bold text-[10px]">Publish</button>
+                            <button onclick="toggleDesktopShortcut('${app.id}')" class="px-2 py-1 rounded bg-slate-800 text-sky-300 font-bold text-[10px]">${pinLabel}</button>
+                            <button onclick="deleteLocalApp('${app.id}')" class="px-2 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-[10px]">Delete</button>
+                        </div>
+                    `;
                     list.appendChild(card);
                 });
+            };
+        }
+
+        async function publishAppToGlobal(id) {
+            const db = await openAppDB();
+            const tx = db.transaction('apps', 'readonly');
+            const req = tx.objectStore('apps').get(id);
+            req.onsuccess = () => {
+                const app = req.result;
+                if (!app || !window.firebaseApp || !currentUser) return;
+                const { db: fdb, ref, push } = window.firebaseApp;
+                push(ref(fdb, 'store/apps'), {
+                    name: app.name,
+                    content: app.content,
+                    isUrl: app.isUrl || false,
+                    size: app.size || 0,
+                    uploader: currentUser.username,
+                    timestamp: Date.now()
+                });
+                alert(`App "${app.name}" published globally!`);
             };
         }
 
@@ -1002,20 +981,10 @@
             const content = await file.text();
             const db = await openAppDB();
             const tx = db.transaction('apps', 'readwrite');
-            tx.objectStore('apps').put({ id: 'app_' + Date.now(), name: file.name.replace(/\.html?$/i, ''), content, size: file.size, onDesktop: true });
+            tx.objectStore('apps').put({ id: 'app_' + Date.now(), name: file.name.replace(/\.html?$/i, ''), content, size: file.size, isUrl: false, onDesktop: true });
             tx.oncomplete = () => {
                 loadLocalApps();
                 renderDesktopAppGrid();
-            };
-        }
-
-        async function runApp(id) {
-            const db = await openAppDB();
-            const tx = db.transaction('apps', 'readonly');
-            const req = tx.objectStore('apps').get(id);
-            req.onsuccess = () => {
-                const win = window.open('about:blank', '_blank');
-                win.document.open(); win.document.write(req.result.content); win.document.close();
             };
         }
 
@@ -1032,31 +1001,43 @@
         function loadGlobalApps() {
             if (!window.firebaseApp) return;
             const { db, ref, onValue } = window.firebaseApp;
+            const searchVal = (document.getElementById('searchGlobalAppsInput')?.value || '').toLowerCase();
+
             onValue(ref(db, 'store/apps'), snapshot => {
                 const list = document.getElementById('globalAppsList');
                 if (!list) return;
                 list.innerHTML = '';
                 if (!snapshot.exists()) { list.innerHTML = '<div class="text-slate-500 text-xs">No community apps published.</div>'; return; }
+                
                 snapshot.forEach(child => {
                     const app = { id: child.key, ...child.val() };
+                    if (searchVal && !app.name.toLowerCase().includes(searchVal)) return;
+
                     const card = document.createElement('div');
                     card.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center";
-                    const sizeMb = app.size ? (app.size/(1024*1024)).toFixed(2) + ' MB' : 'Custom';
-                    card.innerHTML = `<div><div class="font-bold text-white text-xs">${app.name}</div><div class="text-[10px] text-slate-400">By ${app.uploader} • ${sizeMb}</div></div><button onclick="runGlobalApp('${app.id}')" class="px-3 py-1 rounded bg-amber-500 text-slate-950 font-bold text-[10px]">Run</button>`;
+                    const isOwner = currentUser && app.uploader === currentUser.username;
+                    const deleteBtn = isOwner ? `<button onclick="deleteGlobalApp('${app.id}')" class="px-2 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-[10px]">Unpublish</button>` : '';
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="font-bold text-white text-xs">${app.name}</div>
+                            <div class="text-[10px] text-slate-400">By ${app.uploader}</div>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="executeTargetContent('${encodeURIComponent(app.content)}', '${app.name}', ${app.isUrl || false})" class="px-2.5 py-1 rounded bg-amber-500 text-slate-950 font-bold text-[10px]">Run</button>
+                            ${deleteBtn}
+                        </div>
+                    `;
                     list.appendChild(card);
                 });
             });
         }
 
-        async function runGlobalApp(id) {
-            if (!window.firebaseApp) return;
-            const { db, ref, get } = window.firebaseApp;
-            const snap = await get(ref(db, 'store/apps/' + id));
-            if (snap.exists()) {
-                const app = snap.val();
-                const win = window.open('about:blank', '_blank');
-                win.document.open(); win.document.write(app.content); win.document.close();
-            }
+        async function deleteGlobalApp(id) {
+            if (!window.firebaseApp || !confirm("Unpublish this app from the public store?")) return;
+            const { db, ref, remove } = window.firebaseApp;
+            await remove(ref(db, 'store/apps/' + id));
+            loadGlobalApps();
         }
 
         // File Manager
@@ -1105,7 +1086,7 @@
             tx.oncomplete = () => loadFiles();
         }
 
-        // Boot Loader Sequence Transition
+        // Boot Sequence
         window.addEventListener('DOMContentLoaded', () => {
             let progress = 0;
             const bar = document.getElementById('bootBar');
