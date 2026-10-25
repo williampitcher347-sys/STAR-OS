@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star OS v7.5 Enterprise</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_9A_XbwdlAM2ty3SBYCrf-mU5LAUXQ44",
+            authDomain: "polarisos-e7f17.firebaseapp.com",
+            databaseURL: "https://polarisos-e7f17-default-rtdb.firebaseio.com",
+            projectId: "polarisos-e7f17",
+            storageBucket: "polarisos-e7f17.firebasestorage.app",
+            messagingSenderId: "120686532288",
+            appId: "1:120686532288:web:c35eadfc4927965621bf25",
+            measurementId: "G-TLXTBLTG5M"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        window.firebaseApp = { auth, db, ref, set, push, onValue, get, remove, update, signInAnonymously, signOut };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.currentAuthUser = user;
+                window.firebaseReady = true;
+                if (window.onFirebaseReady) window.onFirebaseReady();
+            } else {
+                window.currentAuthUser = null;
+            }
+        });
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        :root {
+            --accent-color: #38bdf8;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #02040a;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Dynamic Desktop Background Layer */
+        #desktopBgLayer {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.5s ease;
+        }
+
+        .default-aurora-bg {
+            background: radial-gradient(circle at 20% 20%, #0d1936 0%, #040814 45%, #02040a 100%);
+        }
+
+        .aurora-glow-1 {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            top: -150px;
+            left: -150px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(139, 92, 246, 0.08) 50%, transparent 70%);
+            filter: blur(80px);
+            animation: float-aurora-1 18s ease-in-out infinite alternate;
+        }
+
+        .aurora-glow-2 {
+            position: absolute;
+            width: 650px;
+            height: 650px;
+            bottom: -100px;
+            right: -100px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, rgba(56, 189, 248, 0.06) 50%, transparent 70%);
+            filter: blur(90px);
+            animation: float-aurora-2 22s ease-in-out infinite alternate;
+        }
+
+        @keyframes float-aurora-1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(120px, 80px) scale(1.2); }
+        }
+
+        @keyframes float-aurora-2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-100px, -90px) scale(1.15); }
+        }
+
+        .glass-panel {
+            background: rgba(10, 16, 30, 0.85);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        .taskbar-glass {
+            background: rgba(6, 10, 20, 0.88);
+            backdrop-filter: blur(28px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .os-window {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            border-radius: 1rem;
+            overflow: hidden;
+            min-width: 460px;
+            min-height: 360px;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(10, 16, 28, 0.96);
+            backdrop-filter: blur(32px);
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .os-window.minimized {
+            opacity: 0 !important;
+            transform: scale(0.8) translateY(140px) !important;
+            pointer-events: none !important;
+        }
+
+        .os-window.fullscreen {
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            z-index: 99999 !important;
+        }
+
+        .fullscreen-overlay-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: rgba(10, 16, 30, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100000;
+        }
+
+        .window-header {
+            cursor: move;
+            background: rgba(20, 30, 48, 0.92);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #02040a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+
+        /* BOOT LOADER ANIMATIONS */
+        #bootScreen {
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .boot-portal {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .boot-ring-outer {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px dashed rgba(56, 189, 248, 0.4);
+            animation: spin-right 14s linear infinite;
+        }
+
+        .boot-ring-inner {
+            position: absolute;
+            inset: 16px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: #c084fc;
+            border-bottom-color: #38bdf8;
+            animation: spin-left 8s ease-in-out infinite;
+        }
+
+        @keyframes spin-right { 100% { transform: rotate(360deg); } }
+        @keyframes spin-left { 100% { transform: rotate(-360deg); } }
+    </style>
+</head>
+<body class="flex flex-col h-full w-full overflow-hidden relative bg-[#02040a]" id="osBody">
+
+    <!-- DESKTOP BACKGROUND LAYER -->
+    <div id="desktopBgLayer" class="default-aurora-bg">
+        <div class="aurora-glow-1"></div>
+        <div class="aurora-glow-2"></div>
+    </div>
+
+    <!-- BOOT SCREEN -->
+    <div id="bootScreen" class="fixed inset-0 z-[100000] bg-[#02040a] flex flex-col items-center justify-center p-6 overflow-hidden">
+        <div class="boot-portal mb-8">
+            <div class="boot-ring-outer"></div>
+            <div class="boot-ring-inner"></div>
+            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-sky-400/20 to-purple-600/20 border border-sky-400/40 flex items-center justify-center text-sky-300 shadow-2xl shadow-sky-500/30">
+                <i data-lucide="sparkles" class="w-12 h-12 animate-pulse"></i>
+            </div>
+        </div>
+        <h1 class="text-5xl font-black tracking-widest text-white mb-2">STAR<span class="text-sky-400">OS</span></h1>
+        <p class="text-xs text-slate-400 mb-8 mono tracking-widest">ENTERPRISE CORE V7.5</p>
+        <div class="w-full max-w-xs">
+            <div class="h-1.5 rounded-full bg-slate-900 border border-slate-800/80 overflow-hidden shadow-inner">
+                <div id="bootBar" class="h-full w-0 bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-500 transition-all duration-300 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT AUTHENTICATION MODAL -->
+    <div id="authScreen" class="fixed inset-0 z-[90000] bg-[#02040a]/90 backdrop-blur-3xl hidden flex flex-col items-center justify-center p-6">
+        <div class="glass-panel w-full max-w-md rounded-3xl p-8 border border-sky-500/30 flex flex-col items-center shadow-2xl">
+            <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400/50 flex items-center justify-center text-sky-400 mb-4">
+                <i data-lucide="shield-check" class="w-8 h-8"></i>
+            </div>
+            <h2 id="authTitle" class="text-xl font-bold text-white mb-1">Account Sign In</h2>
+            <p id="authSub" class="text-xs text-slate-400 mb-6 text-center">Enter credentials to access Star OS</p>
+
+            <div class="w-full space-y-3">
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Username</label>
+                    <input type="text" id="authUsername" placeholder="e.g. William" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Password</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                </div>
+                <div id="avatarInputGroup" class="hidden">
+                    <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Profile Picture (Image URL)</label>
+                    <input type="text" id="authAvatar" placeholder="https://example.com/avatar.png" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                </div>
+            </div>
+
+            <button onclick="submitAuth()" class="w-full py-3 mt-6 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs hover:bg-sky-400 transition">Continue</button>
+            
+            <div class="mt-4 text-center">
+                <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-xs text-sky-400 hover:underline">Need a new account? Create one</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DESKTOP ENVIRONMENT -->
+    <div id="desktopEnv" class="flex-1 relative w-full h-full overflow-hidden opacity-0 transition-opacity duration-1000 z-10 pb-12">
+
+        <!-- DESKTOP APP ICONS GRID -->
+        <div id="desktopAppGrid" class="absolute top-6 left-6 grid grid-flow-col grid-rows-6 gap-6 z-10"></div>
+
+        <!-- WINDOW WORKSPACE -->
+        <div id="windowWorkspace" class="absolute inset-0 w-full h-full overflow-hidden pb-12">
+
+            <!-- DISCORD CHAT WINDOW -->
+            <div id="chatWindow" class="os-window hidden w-[940px] h-[620px] top-8 left-24" style="z-index: 101;">
+                <!-- Fullscreen Top Control Bar -->
+                <div class="fullscreen-overlay-bar hidden" id="chatFullscreenBar">
+                    <div class="flex items-center gap-2">
+                        <span class="text-purple-400 font-bold">#</span>
+                        <span class="text-xs font-bold text-white">Discord Workspace (Fullscreen)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleFullscreen('chatWindow')" class="px-3 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-bold">Exit Fullscreen</button>
+                        <button onclick="closeWindow('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <div class="window-header px-4 py-2.5 flex items-center justify-between bg-[#1e1f22]" onmousedown="dragMouseDown(event, 'chatWindow')">
+                    <div class="flex items-center gap-2"><span class="text-base font-bold text-purple-400">#</span><span id="activeChannelTitle" class="text-xs font-bold text-white">general-lounge</span></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 flex bg-[#313338] text-[#dbdee1] overflow-hidden text-xs">
+                    <div class="w-64 bg-[#2b2d31] flex flex-col border-r border-[#1f2023] shrink-0">
+                        <div class="p-3 border-b border-[#1f2023] space-y-2">
+                            <div class="flex items-center justify-between font-bold text-white">
+                                <span>Active Servers</span>
+                                <button onclick="createNewDiscordServer()" class="text-xs px-2 py-0.5 rounded bg-purple-600 text-white font-bold">+</button>
+                            </div>
+                            <input type="text" id="searchChannelInput" oninput="filterChannels()" placeholder="Search channels..." class="w-full bg-[#1e1f22] border border-[#1f2023] rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none">
+                        </div>
+                        <div class="p-2 space-y-0.5 flex-1 overflow-y-auto" id="discordChannelList"></div>
+                        <div class="p-3 bg-[#232428] border-t border-[#1f2023] flex flex-col gap-1">
+                            <div class="flex items-center gap-2">
+                                <img id="chatUserAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" class="w-8 h-8 rounded-full object-cover">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-bold text-white text-xs truncate" id="discordUserName">User</div>
+                                    <div class="text-[10px] text-pink-400 font-semibold truncate" id="discordUserPartner">Lover: None</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col bg-[#313338] overflow-hidden relative">
+                        <div id="chatMessagesList" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
+                        <div class="p-4 bg-[#313338]">
+                            <div class="bg-[#383a40] rounded-xl p-2.5 flex items-center gap-3">
+                                <input type="text" id="chatInput" onkeydown="if(event.key==='Enter')sendChatMessage()" placeholder="Message channel..." class="flex-1 bg-transparent text-white focus:outline-none text-xs">
+                                <label class="p-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 cursor-pointer text-slate-300" title="Attach file up to 250MB"><i data-lucide="paperclip" class="w-4 h-4"></i><input type="file" id="chatAttachmentInput" class="hidden" onchange="sendChatMessageWithAttachment(event)"></label>
+                                <button onclick="sendChatMessage()" class="px-4 py-1.5 rounded-lg bg-purple-600 text-white font-semibold">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USER PROFILE & PARTNER MODAL -->
+            <div id="userProfileModal" class="hidden fixed inset-0 z-[80000] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+                <div class="glass-panel w-full max-w-sm rounded-3xl p-6 border border-purple-500/40 flex flex-col items-center text-center relative">
+                    <button onclick="closeUserProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    <img id="modalUserAvatar" src="" class="w-20 h-20 rounded-full object-cover border-2 border-purple-400 mb-3 shadow-lg">
+                    <h3 id="modalUserName" class="font-bold text-white text-base">Username</h3>
+                    <p id="modalUserPartner" class="text-xs text-pink-400 font-semibold mb-6">Lover: None</p>
+                    <div class="w-full space-y-2">
+                        <button onclick="sendPartnerRequest()" class="w-full py-2.5 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs transition flex items-center justify-center gap-2">
+                            <i data-lucide="heart" class="w-4 h-4"></i> Send Partner Request
+                        </button>
+                        <button onclick="startDirectMessage()" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition flex items-center justify-center gap-2">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i> Send Direct Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APP STORE WINDOW -->
+            <div id="storeWindow" class="os-window hidden w-[960px] h-[620px] top-12 left-20" style="z-index: 102;">
+                <div class="window-header px-4 py-3 flex items-center justify-between" onmousedown="dragMouseDown(event, 'storeWindow')">
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center text-amber-300"><i data-lucide="store" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white">Star OS Global App Store (250MB Limit)</div></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('storeWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('storeWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('storeWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 p-6 bg-slate-950 grid grid-cols-2 gap-6 overflow-y-auto">
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-white text-xs uppercase tracking-wider">Local Apps (IndexedDB)</h3>
+                        <label class="block p-5 border border-dashed border-sky-400/40 rounded-2xl text-center cursor-pointer bg-sky-500/5 hover:bg-sky-500/10 transition"><span class="text-xs font-bold text-sky-300">Import HTML App (Up to 250MB)</span><input type="file" accept=".html" class="hidden" onchange="importAppFile(event)"></label>
+                        <div id="localAppsList" class="space-y-2"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-white text-xs uppercase tracking-wider">Public Firebase Catalogue</h3>
+                        <div id="globalAppsList" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILES WINDOW -->
+            <div id="filesWindow" class="os-window hidden w-[860px] h-[560px] top-14 left-24" style="z-index: 103;">
+                <div class="window-header px-4 py-3 flex items-center justify-between" onmousedown="dragMouseDown(event, 'filesWindow')">
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-xl bg-cyan-400/20 border border-cyan-300/30 flex items-center justify-center text-cyan-200"><i data-lucide="folder-open" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white">Star OS File System</div></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('filesWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('filesWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('filesWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 p-5 bg-slate-950 flex flex-col gap-3">
+                    <div class="flex justify-between items-center"><label class="px-4 py-2 rounded-xl bg-cyan-400 text-slate-950 text-xs font-bold cursor-pointer hover:bg-cyan-300 transition">Import File (250MB Max)<input type="file" multiple class="hidden" onchange="importFiles(event)"></label><span id="fileCountStat" class="text-xs text-slate-400 mono">0 files stored</span></div>
+                    <div id="userFilesList" class="flex-1 overflow-y-auto space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- OUTLOOK MAIL WINDOW -->
+            <div id="mailWindow" class="os-window hidden w-[900px] h-[580px] top-16 left-36" style="z-index: 104;">
+                <div class="window-header px-4 py-2.5 flex items-center justify-between bg-slate-900" onmousedown="dragMouseDown(event, 'mailWindow')">
+                    <div class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-sky-400"></i><span class="text-xs font-bold text-white">Outlook Mail (<span id="userMailHandle" class="text-sky-400">user@star</span>)</span></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('mailWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('mailWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('mailWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 flex bg-[#030712] overflow-hidden text-xs">
+                    <div class="w-48 border-r border-slate-800 p-3 flex flex-col gap-3 bg-slate-900/80 shrink-0">
+                        <button onclick="showComposeMail()" class="w-full py-2.5 rounded-xl bg-sky-500 text-slate-950 font-bold flex items-center justify-center gap-2"><i data-lucide="pen-tool" class="w-4 h-4"></i> New Mail</button>
+                        <div class="space-y-1"><button onclick="switchMailTab('inbox')" class="w-full p-2.5 rounded-xl bg-sky-500/20 text-sky-300 font-semibold flex items-center justify-between">Inbox <span id="mailBadge">0</span></button><button onclick="switchMailTab('sent')" class="w-full p-2.5 rounded-xl text-slate-400 hover:bg-slate-800 flex items-center">Sent</button></div>
+                    </div>
+                    <div class="flex-1 flex overflow-hidden bg-slate-950/60 relative">
+                        <div id="mailListPane" class="w-64 border-r border-slate-800 overflow-y-auto p-2 space-y-1.5 shrink-0"></div>
+                        <div id="mailDetailPane" class="flex-1 p-6 overflow-y-auto flex flex-col"><div class="text-slate-500 text-center my-auto">Select an email to view.</div></div>
+                        <div id="mailComposePane" class="hidden p-6 flex-1 flex flex-col gap-3 bg-slate-900/95 absolute inset-0 z-20">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2"><h3 class="text-xs font-bold text-white">New Email</h3><button onclick="hideComposeMail()" class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+                            <input type="text" id="mailRecipient" placeholder="To: recipient@star" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                            <input type="text" id="mailSubject" placeholder="Subject" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
+                            <textarea id="mailBody" rows="6" placeholder="Write message..." class="w-full flex-1 bg-slate-950 border border-slate-700 rounded-xl p-3.5 text-xs text-white focus:outline-none"></textarea>
+                            <div class="flex justify-end gap-2"><button onclick="hideComposeMail()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300">Cancel</button><button onclick="sendMail()" class="px-6 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold">Send</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BROWSER WINDOW -->
+            <div id="browserWindow" class="os-window hidden w-[880px] h-[560px] top-12 left-28" style="z-index: 105;">
+                <div class="window-header px-4 py-2.5 flex items-center justify-between" onmousedown="dragMouseDown(event, 'browserWindow')">
+                    <div class="flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-sky-400"></i><span class="text-xs font-bold text-white">Star Browser</span></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 flex flex-col bg-[#030712] overflow-hidden">
+                    <div class="p-2 border-b border-slate-800 flex items-center gap-2"><input type="text" id="urlInput" onkeydown="if(event.key==='Enter')navigateToUrl()" placeholder="Enter URL..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"></div>
+                    <div class="flex-1 relative w-full h-full overflow-hidden">
+                        <div id="pagePolarisHome" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"><i data-lucide="sparkles" class="w-12 h-12 text-sky-400 mb-4"></i><h2 class="text-xl font-bold text-white mb-2">StarNetwork.io</h2><p class="text-xs text-slate-400">High-Speed Web Browser Interface</p></div>
+                        <iframe id="browserIframe" class="absolute inset-0 w-full h-full border-0 hidden bg-white"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS WINDOW -->
+            <div id="settingsWindow" class="os-window hidden w-[680px] h-[560px] top-16 left-44" style="z-index: 106;">
+                <div class="window-header px-4 py-3 flex items-center justify-between" onmousedown="dragMouseDown(event, 'settingsWindow')">
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-xl bg-emerald-400/20 border border-emerald-300/30 flex items-center justify-center text-emerald-300"><i data-lucide="settings" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white">System Settings</div></div>
+                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                </div>
+                <div class="flex-1 p-6 bg-slate-950 space-y-4 text-xs overflow-y-auto">
+                    <!-- User Profile Banner -->
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <img id="settingsAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <span id="settingsUserDisplay" class="font-bold text-white block text-sm">William</span>
+                                <span class="text-slate-400 text-[10px]">Active Local User Profile</span>
+                            </div>
+                        </div>
+                        <button onclick="handleSignOut()" class="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold hover:bg-rose-500/30 transition">Sign Out</button>
+                    </div>
+
+                    <!-- Custom Accent Color Picker -->
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                        <span class="font-bold text-white block">System Accent Color Palette</span>
+                        <div class="flex items-center gap-3">
+                            <input type="color" id="accentColorPicker" value="#38bdf8" onchange="applyCustomAccentColor(this.value)" class="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0">
+                            <span class="text-slate-400 text-xs">Select any custom hex color from the palette selector</span>
+                        </div>
+                    </div>
+
+                    <!-- Wallpaper Selector (URL or File Upload) -->
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+                        <span class="font-bold text-white block">Desktop Wallpaper Customization</span>
+                        <div class="space-y-2">
+                            <div class="flex gap-2">
+                                <input type="text" id="wallpaperUrlInput" placeholder="Enter image URL..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                                <button onclick="setWallpaperFromUrl()" class="px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold">Apply URL</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold cursor-pointer hover:bg-purple-500 transition">
+                                    Upload Background File
+                                    <input type="file" accept="image/*" class="hidden" onchange="setWallpaperFromFile(event)">
+                                </label>
+                                <button onclick="resetDefaultWallpaper()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Reset Aurora</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TASKBAR -->
+        <div id="taskbarDock" class="absolute bottom-0 inset-x-0 h-12 taskbar-glass flex items-center justify-between px-4 z-50">
+            <div class="flex items-center gap-2">
+                <button onclick="openWindow('storeWindow')" class="px-3 py-1.5 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs flex items-center gap-2 hover:bg-sky-400 transition">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> Star OS
+                </button>
+                <div class="h-5 w-px bg-slate-800 mx-1"></div>
+                <button onclick="toggleTaskbarApp('chatWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-purple-400 transition" title="Discord"><i data-lucide="message-square" class="w-5 h-5"></i></button>
+                <button onclick="toggleTaskbarApp('storeWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-amber-400 transition" title="App Store"><i data-lucide="store" class="w-5 h-5"></i></button>
+                <button onclick="toggleTaskbarApp('filesWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-cyan-300 transition" title="Files"><i data-lucide="folder-open" class="w-5 h-5"></i></button>
+                <button onclick="toggleTaskbarApp('mailWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-indigo-400 transition" title="Outlook"><i data-lucide="mail" class="w-5 h-5"></i></button>
+                <button onclick="toggleTaskbarApp('browserWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-sky-400 transition" title="Browser"><i data-lucide="globe" class="w-5 h-5"></i></button>
+                <button onclick="toggleTaskbarApp('settingsWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-emerald-400 transition" title="Settings"><i data-lucide="settings" class="w-5 h-5"></i></button>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-slate-300">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="clockWidget" class="mono font-semibold">12:00 PM</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT ENGINE -->
+    <script>
+        lucide.createIcons();
+
+        setInterval(() => {
+            document.getElementById('clockWidget').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }, 1000);
+
+        let isRegistering = false;
+        let currentUser = null;
+        let targetModalUser = null;
+        let serverListCache = [
+            { id: 'general', name: 'general-lounge', locked: false },
+            { id: 'dev', name: 'dev-chat', locked: false },
+            { id: 'vip', name: 'vip-lounge', locked: true, pass: 'star123' }
+        ];
+
+        function toggleAuthMode() {
+            isRegistering = !isRegistering;
+            document.getElementById('authTitle').textContent = isRegistering ? "Create Account" : "Account Sign In";
+            document.getElementById('authSub').textContent = isRegistering ? "Register a new user credential" : "Access your Star OS profile";
+            document.getElementById('authToggleBtn').textContent = isRegistering ? "Already have an account? Sign In" : "Need a new account? Create one";
+            document.getElementById('avatarInputGroup').classList.toggle('hidden', !isRegistering);
+        }
+
+        function openUserDB() {
+            return new Promise((res, rej) => {
+                const req = indexedDB.open('star_users_db', 1);
+                req.onupgradeneeded = e => e.target.result.createObjectStore('users', { keyPath: 'username' });
+                req.onsuccess = e => res(e.target.result);
+                req.onerror = e => rej(e.target.error);
+            });
+        }
+
+        async function submitAuth() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+            const avatar = document.getElementById('authAvatar').value.trim() || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
+
+            if (!username || !password) {
+                alert('Please fill out username and password.');
+                return;
+            }
+
+            const db = await openUserDB();
+            if (isRegistering) {
+                const tx = db.transaction('users', 'readwrite');
+                const store = tx.objectStore('users');
+                const checkReq = store.get(username);
+                checkReq.onsuccess = () => {
+                    if (checkReq.result) {
+                        alert('Username already exists!');
+                    } else {
+                        store.put({ username, password, avatar, partner: 'None' });
+                        tx.oncomplete = () => loginUser({ username, avatar, partner: 'None' });
+                    }
+                };
+            } else {
+                const tx = db.transaction('users', 'readonly');
+                const req = tx.objectStore('users').get(username);
+                req.onsuccess = () => {
+                    const user = req.result;
+                    if (user && user.password === password) {
+                        loginUser(user);
+                    } else {
+                        alert('Invalid username or password.');
+                    }
+                };
+            }
+        }
+
+        function loginUser(user) {
+            currentUser = user;
+            localStorage.setItem('star_current_user', JSON.stringify(user));
+            if (window.firebaseApp && window.firebaseApp.auth) {
+                window.firebaseApp.signInAnonymously(window.firebaseApp.auth);
+            }
+            document.getElementById('discordUserName').textContent = user.username;
+            document.getElementById('discordUserPartner').textContent = 'Lover: ' + (user.partner || 'None');
+            document.getElementById('chatUserAvatar').src = user.avatar;
+            document.getElementById('settingsAvatar').src = user.avatar;
+            document.getElementById('userMailHandle').textContent = user.username.toLowerCase() + '@star';
+            document.getElementById('settingsUserDisplay').textContent = user.username;
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('desktopEnv').classList.remove('opacity-0');
+            initFirebaseChat();
+            initFirebaseMail();
+            loadLocalApps();
+            loadGlobalApps();
+            loadFiles();
+            renderDesktopAppGrid();
+            renderChannelList();
+        }
+
+        function checkAuth() {
+            const saved = localStorage.getItem('star_current_user');
+            if (saved) {
+                loginUser(JSON.parse(saved));
+            } else {
+                document.getElementById('authScreen').classList.remove('hidden');
+            }
+        }
+
+        function handleSignOut() {
+            localStorage.removeItem('star_current_user');
+            currentUser = null;
+            if (window.firebaseApp && window.firebaseApp.auth) {
+                window.firebaseApp.signOut(window.firebaseApp.auth);
+            }
+            location.reload();
+        }
+
+        function applyCustomAccentColor(color) {
+            document.documentElement.style.setProperty('--accent-color', color);
+        }
+
+        function setWallpaperFromUrl() {
+            const url = document.getElementById('wallpaperUrlInput').value.trim();
+            if (!url) return;
+            const layer = document.getElementById('desktopBgLayer');
+            layer.className = '';
+            layer.style.backgroundImage = `url('${url}')`;
+        }
+
+        function setWallpaperFromFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                const layer = document.getElementById('desktopBgLayer');
+                layer.className = '';
+                layer.style.backgroundImage = `url('${reader.result}')`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetDefaultWallpaper() {
+            const layer = document.getElementById('desktopBgLayer');
+            layer.style.backgroundImage = 'none';
+            layer.className = 'default-aurora-bg';
+        }
+
+        // Window Management
+        let activeZ = 200;
+        function openWindow(id) {
+            const win = document.getElementById(id);
+            if (!win) return;
+            win.classList.remove('hidden');
+            win.classList.remove('minimized');
+            win.style.zIndex = ++activeZ;
+        }
+        function closeWindow(id) {
+            const win = document.getElementById(id);
+            if (win) { 
+                win.classList.add('hidden'); 
+                win.classList.remove('fullscreen'); 
+                if (id === 'chatWindow') document.getElementById('chatFullscreenBar').classList.add('hidden');
+            }
+        }
+        function minimizeWindow(id) {
+            const win = document.getElementById(id);
+            if (win) win.classList.add('minimized');
+        }
+        function toggleFullscreen(id) {
+            const win = document.getElementById(id);
+            if (!win) return;
+            win.classList.toggle('fullscreen');
+            win.style.zIndex = ++activeZ;
+
+            if (id === 'chatWindow') {
+                const bar = document.getElementById('chatFullscreenBar');
+                bar.classList.toggle('hidden', !win.classList.contains('fullscreen'));
+            }
+        }
+        function toggleTaskbarApp(id) {
+            const win = document.getElementById(id);
+            if (win.classList.contains('hidden') || win.classList.contains('minimized')) openWindow(id);
+            else minimizeWindow(id);
+        }
+
+        let dragObj = null, offsetX = 0, offsetY = 0;
+        function dragMouseDown(e, id) {
+            const win = document.getElementById(id);
+            if (win.classList.contains('fullscreen')) return;
+            dragObj = win;
+            dragObj.style.zIndex = ++activeZ;
+            offsetX = e.clientX - win.offsetLeft;
+            offsetY = e.clientY - win.offsetTop;
+            document.onmousemove = elementDrag;
+            document.onmouseup = closeDragElement;
+        }
+        function elementDrag(e) {
+            if (!dragObj) return;
+            dragObj.style.left = (e.clientX - offsetX) + "px";
+            dragObj.style.top = (e.clientY - offsetY) + "px";
+        }
+        function closeDragElement() { document.onmousemove = null; document.onmouseup = null; dragObj = null; }
+
+        // Browser Navigation
+        function navigateToUrl() {
+            const val = document.getElementById('urlInput').value.trim();
+            if (!val) return;
+            document.getElementById('pagePolarisHome').classList.add('hidden');
+            const iframe = document.getElementById('browserIframe');
+            iframe.classList.remove('hidden');
+            iframe.src = /^https?:\/\//i.test(val) ? val : 'https://' + val;
+        }
+
+        // Discord Server & Channel Management
+        let activeChannel = 'general';
+
+        function renderChannelList(filter = '') {
+            const list = document.getElementById('discordChannelList');
+            if (!list) return;
+            list.innerHTML = '';
+
+            serverListCache.filter(s => s.name.includes(filter.toLowerCase())).forEach(s => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-2.5 py-2 rounded font-semibold flex items-center justify-between text-xs ${activeChannel === s.id ? 'bg-[#3f4248] text-white' : 'hover:bg-[#35373c] text-slate-300'}`;
+                btn.onclick = () => selectChannel(s);
+                btn.innerHTML = `<span># ${s.name}</span>${s.locked ? '<i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i>' : ''}`;
+                list.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+
+        function filterChannels() {
+            const val = document.getElementById('searchChannelInput').value.trim();
+            renderChannelList(val);
+        }
+
+        function selectChannel(server) {
+            if (server.locked) {
+                const pass = prompt(`Server "${server.name}" is locked. Enter password:`);
+                if (pass !== server.pass) {
+                    alert('Incorrect password!');
+                    return;
+                }
+            }
+            activeChannel = server.id;
+            document.getElementById('activeChannelTitle').textContent = server.name;
+            renderChannelList();
+            initFirebaseChat();
+        }
+
+        function createNewDiscordServer() {
+            const name = prompt("Enter new channel name:");
+            if (!name) return;
+            const lock = confirm("Do you want to lock this server with a password?");
+            let pass = '';
+            if (lock) pass = prompt("Set server password:") || '';
+
+            const id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            serverListCache.push({ id, name: id, locked: lock && pass !== '', pass });
+            renderChannelList();
+            selectChannel({ id, name: id, locked: lock && pass !== '', pass });
+        }
+
+        function initFirebaseChat() {
+            if (!window.firebaseApp) return;
+            const { db, ref, onValue } = window.firebaseApp;
+            onValue(ref(db, 'chat/' + activeChannel), (snapshot) => {
+                const list = document.getElementById('chatMessagesList');
+                if (!list) return;
+                list.innerHTML = '';
+                if (!snapshot.exists()) { list.innerHTML = '<div class="text-slate-500 text-center py-6">No messages in #' + activeChannel + ' yet.</div>'; return; }
+                snapshot.forEach(child => {
+                    const msg = child.val();
+                    const div = document.createElement('div');
+                    div.className = "flex items-start gap-3 bg-[#2b2d31]/50 p-3 rounded-lg border border-[#1f2023]";
+                    let attachHtml = msg.attachment ? `<div class="mt-2 text-xs"><a href="${msg.attachment}" download="attached_file" class="text-sky-400 underline font-bold">Download Attachment ↗</a></div>` : '';
+                    
+                    const avatarImg = document.createElement('img');
+                    avatarImg.src = msg.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
+                    avatarImg.className = 'w-8 h-8 rounded-full object-cover shrink-0 cursor-pointer hover:opacity-80 transition';
+                    avatarImg.onclick = () => openUserProfileModal(msg.sender, msg.avatar, msg.partner || 'None');
+
+                    const textWrap = document.createElement('div');
+                    textWrap.className = 'flex-1 min-w-0';
+                    textWrap.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white text-xs cursor-pointer hover:underline" onclick="openUserProfileModal('${msg.sender}', '${msg.avatar}', '${msg.partner || 'None'}')">${msg.sender}</span>
+                            <span class="text-[10px] text-pink-400 font-semibold">Lover: ${msg.partner || 'None'}</span>
+                            <span class="text-[10px] text-slate-500 font-normal ml-auto">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="text-slate-300 text-xs mt-0.5">${msg.text || ''}</div>
+                        ${attachHtml}
+                    `;
+
+                    div.appendChild(avatarImg);
+                    div.appendChild(textWrap);
+                    list.appendChild(div);
+                });
+                list.scrollTop = list.scrollHeight;
+            });
+        }
+
+        function openUserProfileModal(username, avatar, partner) {
+            targetModalUser = { username, avatar, partner };
+            document.getElementById('modalUserAvatar').src = avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
+            document.getElementById('modalUserName').textContent = username;
+            document.getElementById('modalUserPartner').textContent = 'Lover: ' + (partner || 'None');
+            document.getElementById('userProfileModal').classList.remove('hidden');
+        }
+
+        function closeUserProfileModal() {
+            document.getElementById('userProfileModal').classList.add('hidden');
+        }
+
+        function sendPartnerRequest() {
+            if (!targetModalUser || !currentUser) return;
+            if (targetModalUser.username === currentUser.username) {
+                alert("You cannot partner with yourself!");
+                return;
+            }
+            if (confirm(`Accept partner connection with ${targetModalUser.username}?`)) {
+                currentUser.partner = targetModalUser.username;
+                localStorage.setItem('star_current_user', JSON.stringify(currentUser));
+                document.getElementById('discordUserPartner').textContent = 'Lover: ' + currentUser.partner;
+                closeUserProfileModal();
+                alert(`You are now linked with ${targetModalUser.username}!`);
+            }
+        }
+
+        function startDirectMessage() {
+            if (!targetModalUser) return;
+            closeUserProfileModal();
+            const dmChan = ['dm', currentUser.username, targetModalUser.username].sort().join('_');
+            activeChannel = dmChan;
+            document.getElementById('activeChannelTitle').textContent = `DM: ${targetModalUser.username}`;
+            initFirebaseChat();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !window.firebaseApp || !currentUser) return;
+            const { db, ref, push } = window.firebaseApp;
+            push(ref(db, 'chat/' + activeChannel), { 
+                sender: currentUser.username, 
+                avatar: currentUser.avatar, 
+                partner: currentUser.partner || 'None',
+                text, 
+                timestamp: Date.now() 
+            });
+            input.value = '';
+        }
+
+        function sendChatMessageWithAttachment(e) {
+            const file = e.target.files[0];
+            if (!file || !window.firebaseApp || !currentUser) return;
+            if (file.size > 250 * 1024 * 1024) { alert('Attachment exceeds 250MB limit.'); return; }
+            const reader = new FileReader();
+            reader.onload = () => {
+                const { db, ref, push } = window.firebaseApp;
+                push(ref(db, 'chat/' + activeChannel), { 
+                    sender: currentUser.username, 
+                    avatar: currentUser.avatar, 
+                    partner: currentUser.partner || 'None',
+                    text: `Attached file: ${file.name}`, 
+                    attachment: reader.result, 
+                    timestamp: Date.now() 
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Outlook Mail
+        let activeMailTab = 'inbox';
+        function switchMailTab(tab) { activeMailTab = tab; loadFirebaseMail(); }
+        function showComposeMail() { document.getElementById('mailComposePane').classList.remove('hidden'); }
+        function hideComposeMail() { document.getElementById('mailComposePane').classList.add('hidden'); }
+        function sendMail() {
+            const recipient = document.getElementById('mailRecipient').value.trim();
+            const subject = document.getElementById('mailSubject').value.trim();
+            const body = document.getElementById('mailBody').value.trim();
+            if (!recipient || !subject || !body || !window.firebaseApp || !currentUser) return;
+            const { db, ref, push } = window.firebaseApp;
+            push(ref(db, 'mails'), { sender: currentUser.username.toLowerCase() + '@star', recipient: recipient.toLowerCase(), subject, body, timestamp: Date.now() });
+            hideComposeMail();
+            alert('Mail sent!');
+        }
+        function initFirebaseMail() { loadFirebaseMail(); }
+        function loadFirebaseMail() {
+            if (!window.firebaseApp || !currentUser) return;
+            const { db, ref, onValue } = window.firebaseApp;
+            const myHandle = currentUser.username.toLowerCase() + '@star';
+            onValue(ref(db, 'mails'), snapshot => {
+                const list = document.getElementById('mailListPane');
+                if (!list) return;
+                list.innerHTML = '';
+                let count = 0;
+                if (!snapshot.exists()) { list.innerHTML = '<div class="text-center py-6 text-slate-500">No mail.</div>'; return; }
+                snapshot.forEach(child => {
+                    const m = child.val();
+                    if ((activeMailTab === 'inbox' && m.recipient === myHandle) || (activeMailTab === 'sent' && m.sender === myHandle)) {
+                        count++;
+                        const item = document.createElement('div');
+                        item.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer";
+                        item.innerHTML = `<div class="font-bold text-sky-400 text-xs">${activeMailTab === 'inbox' ? m.sender : m.recipient}</div><div class="font-semibold text-white text-xs truncate">${m.subject}</div>`;
+                        item.onclick = () => { document.getElementById('mailDetailPane').innerHTML = `<h3 class="font-bold text-white text-base mb-2">${m.subject}</h3><p class="text-slate-300 text-xs">${m.body}</p>`; };
+                        list.appendChild(item);
+                    }
+                });
+                document.getElementById('mailBadge').textContent = count;
+            });
+        }
+
+        // DESKTOP & FILE SYSTEM APP MANAGEMENT
+        const MAX_UPLOAD_SIZE = 250 * 1024 * 1024;
+
+        function openAppDB() {
+            return new Promise((res, rej) => {
+                const req = indexedDB.open('star_apps_db', 1);
+                req.onupgradeneeded = e => e.target.result.createObjectStore('apps', { keyPath: 'id' });
+                req.onsuccess = e => res(e.target.result);
+                req.onerror = e => rej(e.target.error);
+            });
+        }
+
+        async function renderDesktopAppGrid() {
+            const grid = document.getElementById('desktopAppGrid');
+            const db = await openAppDB();
+            const tx = db.transaction('apps', 'readonly');
+            const req = tx.objectStore('apps').getAll();
+            req.onsuccess = () => {
+                const customApps = (req.result || []).filter(a => a.onDesktop);
+                const customButtons = customApps.map(app => `
+                    <button onclick="runApp('${app.id}')" class="w-20 flex flex-col items-center gap-2 group">
+                        <div class="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-sky-400"><i data-lucide="play" class="w-7 h-7"></i></div>
+                        <span class="text-xs font-semibold text-slate-200 drop-shadow truncate w-full text-center">${app.name}</span>
+                    </button>
+                `).join('');
+                
+                grid.innerHTML = `
+                    <button onclick="openWindow('chatWindow')" class="w-20 flex flex-col items-center gap-2 group">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-purple-400"><i data-lucide="message-square" class="w-7 h-7"></i></div>
+                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Discord</span>
+                    </button>
+                    <button onclick="openWindow('storeWindow')" class="w-20 flex flex-col items-center gap-2 group">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-amber-400"><i data-lucide="store" class="w-7 h-7"></i></div>
+                        <span class="text-xs font-semibold text-slate-200 drop-shadow">App Store</span>
+                    </button>
+                    <button onclick="openWindow('filesWindow')" class="w-20 flex flex-col items-center gap-2 group">
+                        <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-cyan-300"><i data-lucide="folder-open" class="w-7 h-7"></i></div>
+                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Files</span>
+                    </button>
+                    <button onclick="openWindow('mailWindow')" class="w-20 flex flex-col items-center gap-2 group">
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-indigo-400"><i data-lucide="mail" class="w-7 h-7"></i></div>
+                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Outlook</span>
+                    </button>
+                    <button onclick="openWindow('browserWindow')" class="w-20 flex flex-col items-center gap-2 group">
+                        <div class="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-sky-400"><i data-lucide="globe" class="w-7 h-7"></i></div>
+                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Browser</span>
+                    </button>
+                    <button onclick="openWindow('settingsWindow')" class="w-20 flex flex-col items-center gap-2 group">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-emerald-400"><i data-lucide="settings" class="w-7 h-7"></i></div>
+                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Settings</span>
+                    </button>
+                    ${customButtons}
+                `;
+                lucide.createIcons();
+            };
+        }
+
+        async function toggleDesktopShortcut(id) {
+            const db = await openAppDB();
+            const tx = db.transaction('apps', 'readwrite');
+            const store = tx.objectStore('apps');
+            const req = store.get(id);
+            req.onsuccess = () => {
+                const app = req.result;
+                if (app) {
+                    app.onDesktop = !app.onDesktop;
+                    store.put(app);
+                    tx.oncomplete = () => {
+                        loadLocalApps();
+                        renderDesktopAppGrid();
+                    };
+                }
+            };
+        }
+
+        async function loadLocalApps() {
+            const db = await openAppDB();
+            const tx = db.transaction('apps', 'readonly');
+            const req = tx.objectStore('apps').getAll();
+            req.onsuccess = () => {
+                const list = document.getElementById('localAppsList');
+                list.innerHTML = '';
+                const apps = req.result || [];
+                if (!apps.length) { list.innerHTML = '<div class="text-slate-500 text-xs">No local apps imported.</div>'; return; }
+                apps.forEach(app => {
+                    const card = document.createElement('div');
+                    card.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center";
+                    const pinLabel = app.onDesktop ? 'Remove Shortcut' : 'Pin to Desktop';
+                    card.innerHTML = `<div><div class="font-bold text-white text-xs">${app.name}</div><div class="text-[10px] text-slate-400">${(app.size/(1024*1024)).toFixed(2)} MB</div></div><div class="flex gap-1.5"><button onclick="runApp('${app.id}')" class="px-2.5 py-1 rounded bg-sky-500 text-slate-950 font-bold text-[10px]">Run</button><button onclick="toggleDesktopShortcut('${app.id}')" class="px-2.5 py-1 rounded bg-slate-800 text-sky-300 font-bold text-[10px]">${pinLabel}</button><button onclick="deleteLocalApp('${app.id}')" class="px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-[10px]">Delete</button></div>`;
+                    list.appendChild(card);
+                });
+            };
+        }
+
+        async function importAppFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > MAX_UPLOAD_SIZE) { alert('File exceeds 250MB limit.'); return; }
+            const content = await file.text();
+            const db = await openAppDB();
+            const tx = db.transaction('apps', 'readwrite');
+            tx.objectStore('apps').put({ id: 'app_' + Date.now(), name: file.name.replace(/\.html?$/i, ''), content, size: file.size, onDesktop: true });
+            tx.oncomplete = () => {
+                loadLocalApps();
+                renderDesktopAppGrid();
+            };
+        }
+
+        async function runApp(id) {
+            const db = await openAppDB();
+            const tx = db.transaction('apps', 'readonly');
+            const req = tx.objectStore('apps').get(id);
+            req.onsuccess = () => {
+                const win = window.open('about:blank', '_blank');
+                win.document.open(); win.document.write(req.result.content); win.document.close();
+            };
+        }
+
+        async function deleteLocalApp(id) {
+            const db = await openAppDB();
+            const tx = db.transaction('apps', 'readwrite');
+            tx.objectStore('apps').delete(id);
+            tx.oncomplete = () => {
+                loadLocalApps();
+                renderDesktopAppGrid();
+            };
+        }
+
+        function loadGlobalApps() {
+            if (!window.firebaseApp) return;
+            const { db, ref, onValue } = window.firebaseApp;
+            onValue(ref(db, 'store/apps'), snapshot => {
+                const list = document.getElementById('globalAppsList');
+                if (!list) return;
+                list.innerHTML = '';
+                if (!snapshot.exists()) { list.innerHTML = '<div class="text-slate-500 text-xs">No community apps published.</div>'; return; }
+                snapshot.forEach(child => {
+                    const app = { id: child.key, ...child.val() };
+                    const card = document.createElement('div');
+                    card.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center";
+                    const sizeMb = app.size ? (app.size/(1024*1024)).toFixed(2) + ' MB' : 'Custom';
+                    card.innerHTML = `<div><div class="font-bold text-white text-xs">${app.name}</div><div class="text-[10px] text-slate-400">By ${app.uploader} • ${sizeMb}</div></div><button onclick="runGlobalApp('${app.id}')" class="px-3 py-1 rounded bg-amber-500 text-slate-950 font-bold text-[10px]">Run</button>`;
+                    list.appendChild(card);
+                });
+            });
+        }
+
+        async function runGlobalApp(id) {
+            if (!window.firebaseApp) return;
+            const { db, ref, get } = window.firebaseApp;
+            const snap = await get(ref(db, 'store/apps/' + id));
+            if (snap.exists()) {
+                const app = snap.val();
+                const win = window.open('about:blank', '_blank');
+                win.document.open(); win.document.write(app.content); win.document.close();
+            }
+        }
+
+        // File Manager
+        function openFileDB() {
+            return new Promise((res, rej) => {
+                const req = indexedDB.open('star_files_db', 1);
+                req.onupgradeneeded = e => e.target.result.createObjectStore('files', { keyPath: 'id' });
+                req.onsuccess = e => res(e.target.result);
+                req.onerror = e => rej(e.target.error);
+            });
+        }
+
+        async function loadFiles() {
+            const db = await openFileDB();
+            const tx = db.transaction('files', 'readonly');
+            const req = tx.objectStore('files').getAll();
+            req.onsuccess = () => {
+                const list = document.getElementById('userFilesList');
+                if (!list) return;
+                list.innerHTML = '';
+                const files = req.result || [];
+                document.getElementById('fileCountStat').textContent = files.length + ' files stored';
+                files.forEach(f => {
+                    const row = document.createElement('div');
+                    row.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center";
+                    row.innerHTML = `<span class="font-bold text-white text-xs">${f.name} <span class="text-[10px] text-slate-400">(${(f.size/(1024*1024)).toFixed(2)} MB)</span></span><button onclick="deleteFile('${f.id}')" class="px-3 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-[10px]">Delete</button>`;
+                    list.appendChild(row);
+                });
+            };
+        }
+
+        async function importFiles(e) {
+            const db = await openFileDB();
+            for (const file of e.target.files) {
+                if (file.size > MAX_UPLOAD_SIZE) { alert(`File "${file.name}" exceeds 250MB limit.`); continue; }
+                const tx = db.transaction('files', 'readwrite');
+                tx.objectStore('files').put({ id: 'file_' + Date.now() + Math.random(), name: file.name, size: file.size });
+            }
+            loadFiles();
+        }
+
+        async function deleteFile(id) {
+            const db = await openFileDB();
+            const tx = db.transaction('files', 'readwrite');
+            tx.objectStore('files').delete(id);
+            tx.oncomplete = () => loadFiles();
+        }
+
+        // Boot Loader Sequence Transition
+        window.addEventListener('DOMContentLoaded', () => {
+            let progress = 0;
+            const bar = document.getElementById('bootBar');
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 25) + 12;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        const boot = document.getElementById('bootScreen');
+                        boot.style.opacity = '0';
+                        boot.style.transform = 'scale(1.08)';
+                        setTimeout(() => { boot.style.display = 'none'; checkAuth(); }, 800);
+                    }, 400);
+                }
+                bar.style.width = progress + '%';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
