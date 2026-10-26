@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full w-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star OS v9.0 Ultra Edition</title>
-    <!-- Tailwind CSS -->
+    <title>Star OS v30.0 Masterpiece Edition</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome 6 Vector Monochrome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -21,121 +22,202 @@
             projectId: "polarisos-e7f17",
             storageBucket: "polarisos-e7f17.firebasestorage.app",
             messagingSenderId: "120686532288",
-            appId: "1:120686532288:web:c35eadfc4927965621bf25",
-            measurementId: "G-TLXTBLTG5M"
+            appId: "1:120686532288:web:c35eadfc4927965621bf25"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        window.firebaseApp = { auth, db, ref, set, push, onValue, get, remove, update, signInAnonymously, signOut };
+        window.firebaseApp = { auth, db, ref, set, push, onValue, get, remove, update, signInAnonymously };
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.currentAuthUser = user;
                 window.firebaseReady = true;
                 if (window.onFirebaseReady) window.onFirebaseReady();
-            } else {
-                window.currentAuthUser = null;
             }
         });
     </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
         :root {
-            --accent-color: #38bdf8;
+            --os-primary: #3b82f6;
+            --os-accent: #f59e0b;
+            --os-glass: rgba(13, 13, 18, 0.88);
+            --os-border: rgba(255, 255, 255, 0.16);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
+            width: 100vw;
+            height: 100vh;
             overflow: hidden;
-            background-color: #02040a;
-            color: #f8fafc;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            user-select: none;
+            background: #040406;
+            color: #fff;
         }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
 
+        /* STARFIELD & WALLPAPER LAYER */
         #desktopBgLayer {
             position: absolute;
             inset: 0;
             z-index: 0;
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            transition: background 0.5s ease;
+            transition: background-image 0.5s ease-in-out;
         }
 
-        .default-aurora-bg {
-            background: radial-gradient(circle at 20% 20%, #0d1936 0%, #040814 45%, #02040a 100%);
-        }
-
-        .aurora-glow-1 {
+        #starfieldCanvas {
             position: absolute;
-            width: 700px;
-            height: 700px;
-            top: -150px;
-            left: -150px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(139, 92, 246, 0.08) 50%, transparent 70%);
-            filter: blur(80px);
-            animation: float-aurora-1 18s ease-in-out infinite alternate;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .aurora-glow-2 {
+        #customOsStyleContainer { display: none; }
+
+        /* SELECTION MARQUEE */
+        #selectionMarquee {
             position: absolute;
-            width: 650px;
-            height: 650px;
-            bottom: -100px;
-            right: -100px;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, rgba(56, 189, 248, 0.06) 50%, transparent 70%);
-            filter: blur(90px);
-            animation: float-aurora-2 22s ease-in-out infinite alternate;
+            border: 1px solid rgba(245, 158, 11, 0.8);
+            background: rgba(245, 158, 11, 0.12);
+            pointer-events: none;
+            z-index: 40;
+            display: none;
+            backdrop-filter: blur(4px);
+            border-radius: 6px;
         }
 
-        @keyframes float-aurora-1 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(120px, 80px) scale(1.2); }
-        }
-
-        @keyframes float-aurora-2 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(-100px, -90px) scale(1.15); }
-        }
-
-        .glass-panel {
-            background: rgba(10, 16, 30, 0.88);
+        /* TOP STATUS BAR */
+        #topBar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 36px;
+            background: rgba(8, 8, 12, 0.92);
+            border-bottom: 1px solid var(--os-border);
             backdrop-filter: blur(28px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 1000;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .taskbar-glass {
-            background: rgba(6, 10, 20, 0.92);
-            backdrop-filter: blur(28px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        /* DESKTOP WORKSPACE & APPS */
+        #desktopEnv {
+            position: relative;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        #desktopAppGrid {
+            position: absolute;
+            top: 52px; left: 24px;
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(6, 92px);
+            gap: 16px;
+            z-index: 10;
+        }
+
+        .app-icon-btn {
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            padding: 6px;
+            border-radius: 14px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .app-icon-btn.selected {
+            background: rgba(255, 255, 255, 0.18) !important;
+            outline: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .app-icon-box {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            background: rgba(18, 18, 26, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.85);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            font-size: 22px;
+            color: #fff;
+            position: relative;
+        }
+
+        .app-icon-btn:hover .app-icon-box {
+            transform: translateY(-5px) scale(1.06);
+            background: rgba(255, 255, 255, 0.24);
+            border-color: #fff;
+            box-shadow: 0 16px 40px rgba(245, 158, 11, 0.25);
+        }
+
+        .app-icon-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* WINDOW ARCHITECTURE */
+        #windowWorkspace {
+            position: absolute;
+            top: 36px; left: 0; right: 0; bottom: 46px;
+            overflow: hidden;
         }
 
         .os-window {
             position: absolute;
             display: flex;
             flex-direction: column;
-            border-radius: 1rem;
+            border-radius: 14px;
             overflow: hidden;
-            min-width: 460px;
-            min-height: 360px;
-            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            background: rgba(10, 16, 28, 0.96);
+            background: var(--os-glass);
+            border: 1px solid var(--os-border);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.95);
             backdrop-filter: blur(32px);
-            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            min-width: 480px; min-height: 340px;
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1), top 0.3s cubic-bezier(0.16, 1, 0.3, 1), left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        .os-window.opening { animation: winOpen 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes winOpen {
+            from { opacity: 0; transform: scale(0.93) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .os-window.hidden { display: none !important; }
         .os-window.minimized {
             opacity: 0 !important;
             transform: scale(0.8) translateY(140px) !important;
@@ -143,332 +225,756 @@
         }
 
         .os-window.fullscreen {
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            border-radius: 0 !important;
-            border: none !important;
-            z-index: 99999 !important;
+            top: -36px !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            border-radius: 0 !important; border: none !important;
+            z-index: 9999 !important;
         }
 
         .window-header {
+            height: 40px;
+            background: rgba(18, 18, 26, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
             cursor: move;
-            background: rgba(20, 30, 48, 0.92);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #02040a; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-
-        #bootScreen {
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        /* FIXED WINDOW CONTROLS - HORIZONTAL & CLEAN LIKE DISCORD */
+        .window-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        
-        .boot-portal {
-            position: relative;
-            width: 180px;
-            height: 180px;
+
+        .win-btn {
+            width: 28px; height: 26px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.15s;
+        }
+        .win-btn:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+        .win-btn.close-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+        /* TASKBAR DOCK */
+        #taskbarDock {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 46px;
+            background: rgba(8, 8, 12, 0.94);
+            border-top: 1px solid var(--os-border);
+            backdrop-filter: blur(28px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 1000;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .boot-ring-outer {
-            position: absolute;
+        body.fullscreen-active #topBar { transform: translateY(-100%); }
+        body.fullscreen-active #taskbarDock { transform: translateY(100%); }
+
+        .taskbar-btn {
+            padding: 6px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .taskbar-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+
+        .taskbar-icon-btn {
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: transparent;
+            border: none;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .taskbar-icon-btn:hover { background: rgba(255, 255, 255, 0.16); color: #fff; transform: translateY(-2px); }
+
+        /* MODALS & OVERLAYS */
+        .modal-overlay {
+            position: fixed;
             inset: 0;
-            border-radius: 50%;
-            border: 2px dashed rgba(56, 189, 248, 0.4);
-            animation: spin-right 14s linear infinite;
+            background: rgba(0, 0, 0, 0.86);
+            backdrop-filter: blur(24px);
+            z-index: 90000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-overlay.hidden { display: none !important; }
+
+        .glass-card {
+            background: #0f0f15;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            padding: 24px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 28px 80px rgba(0,0,0,0.95);
+            animation: popUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes popUp {
+            from { opacity: 0; transform: scale(0.94) translateY(16px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .boot-ring-inner {
-            position: absolute;
-            inset: 16px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            border-top-color: #c084fc;
-            border-bottom-color: #38bdf8;
-            animation: spin-left 8s ease-in-out infinite;
+        .form-input {
+            width: 100%;
+            background: #07070a;
+            border: 1px solid #262634;
+            border-radius: 10px;
+            padding: 9px 13px;
+            font-size: 11px;
+            color: #fff;
+            outline: none;
+            margin-top: 4px;
+            transition: border-color 0.15s;
+        }
+        .form-input:focus { border-color: var(--os-accent); }
+
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            background: #fff;
+            color: #000;
+            font-weight: 700;
+            font-size: 11px;
+            border: none;
+            cursor: pointer;
+            margin-top: 14px;
+            transition: all 0.15s ease;
+        }
+        .btn-primary:hover { background: #e0e0e0; transform: translateY(-1px); }
+
+        /* CONTEXT MENU */
+        #contextMenu {
+            position: fixed;
+            z-index: 999999;
+            width: 200px;
+            background: #121218;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 5px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.95);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            animation: menuPop 0.15s ease forwards;
+        }
+        @keyframes menuPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        #contextMenu.hidden { display: none !important; }
+
+        .ctx-item {
+            width: 100%;
+            padding: 8px 11px;
+            text-align: left;
+            background: transparent;
+            border: none;
+            color: #ccc;
+            font-size: 11px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .ctx-item:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+
+        /* BOOT SCREEN */
+        #bootScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease;
         }
 
-        @keyframes spin-right { 100% { transform: rotate(360deg); } }
-        @keyframes spin-left { 100% { transform: rotate(-360deg); } }
+        /* NOTIFICATIONS */
+        #notificationToastContainer {
+            position: fixed;
+            top: 48px; right: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 99999;
+            pointer-events: none;
+        }
+
+        .os-toast {
+            width: 290px;
+            background: rgba(18, 18, 26, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 12px;
+            padding: 12px 14px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.9);
+            backdrop-filter: blur(24px);
+            pointer-events: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: slideInToast 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes slideInToast {
+            from { transform: translateX(110%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .rank-badge {
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-weight: 800;
+            margin-left: 6px;
+            text-transform: uppercase;
+        }
+        .rank-admin { background: #ef4444; color: #fff; }
+        .rank-developer { background: #3b82f6; color: #fff; }
+        .rank-vip { background: #f59e0b; color: #000; }
+        .rank-user { background: #333; color: #aaa; }
     </style>
 </head>
-<body class="flex flex-col h-full w-full overflow-hidden relative bg-[#02040a]" id="osBody">
+<body oncontextmenu="handleGlobalContextMenu(event)">
 
-    <!-- DESKTOP BACKGROUND LAYER -->
-    <div id="desktopBgLayer" class="default-aurora-bg">
-        <div class="aurora-glow-1"></div>
-        <div class="aurora-glow-2"></div>
+    <!-- BACKGROUND CANVAS & WALLPAPER LAYER -->
+    <div id="desktopBgLayer">
+        <canvas id="starfieldCanvas"></canvas>
+    </div>
+
+    <!-- DYNAMICALLY INJECTED ADMIN OS MOD THEMES -->
+    <style id="customOsStyleContainer"></style>
+
+    <!-- WHITE DRAG SELECTION MARQUEE -->
+    <div id="selectionMarquee"></div>
+
+    <!-- NOTIFICATION TOAST CONTAINER -->
+    <div id="notificationToastContainer"></div>
+
+    <!-- FULLSCREEN EXIT HEADER BAR -->
+    <div id="fullscreenExitHeader" style="position:fixed; top:0; left:50%; transform:translateX(-50%) translateY(-100%); background:rgba(18,18,24,0.95); border:1px solid rgba(255,255,255,0.2); border-top:none; border-radius:0 0 10px 10px; padding:6px 16px; display:flex; align-items:center; gap:12px; z-index:100000; transition:transform 0.3s ease;">
+        <span style="font-size:11px; font-weight:600; color:#aaa;"><i class="fa-solid fa-expand"></i> Fullscreen App Mode</span>
+        <button onclick="restoreFromFullscreen()" style="padding:4px 10px; border-radius:6px; background:#fff; color:#000; border:none; font-weight:700; font-size:10px; cursor:pointer;">Exit Fullscreen</button>
+    </div>
+
+    <!-- GLOBAL OS CONTEXT MENU -->
+    <div id="contextMenu" class="hidden">
+        <button onclick="openWindow('starBankWindow'); hideContextMenu();" class="ctx-item"><i class="fa-solid fa-wallet" style="color:#f59e0b;"></i> StarBank</button>
+        <button onclick="openWindow('starPlusWindow'); hideContextMenu();" class="ctx-item"><i class="fa-solid fa-chart-line" style="color:#22c55e;"></i> Star+ Market</button>
+        <button onclick="openWindow('appStudioWindow'); hideContextMenu();" class="ctx-item"><i class="fa-solid fa-code"></i> App Studio</button>
+        <button onclick="openWindow('studiosWindow'); hideContextMenu();" class="ctx-item"><i class="fa-solid fa-city"></i> Studios Hub</button>
+        <button onclick="openWindow('storeWindow'); hideContextMenu();" class="ctx-item"><i class="fa-solid fa-store"></i> App Store</button>
+        <button onclick="openWindow('filesWindow'); hideContextMenu();" class="ctx-item"><i class="fa-solid fa-folder"></i> File Manager</button>
+        <button onclick="openWindow('settingsWindow'); hideContextMenu();" class="ctx-item"><i class="fa-solid fa-gear"></i> Settings</button>
+        <div style="border-top:1px solid #222; margin:3px 0;"></div>
+        <button onclick="rebootSystem(); hideContextMenu();" class="ctx-item"><i class="fa-solid fa-rotate-right"></i> Reboot OS</button>
     </div>
 
     <!-- BOOT SCREEN -->
-    <div id="bootScreen" class="fixed inset-0 z-[100000] bg-[#02040a] flex flex-col items-center justify-center p-6 overflow-hidden">
-        <div class="boot-portal mb-8">
-            <div class="boot-ring-outer"></div>
-            <div class="boot-ring-inner"></div>
-            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-sky-400/20 to-purple-600/20 border border-sky-400/40 flex items-center justify-center text-sky-300 shadow-2xl shadow-sky-500/30">
-                <i data-lucide="sparkles" class="w-12 h-12 animate-pulse"></i>
+    <div id="bootScreen">
+        <div style="width:70px; height:70px; border-radius:20px; background:#111; border:1px solid #333; display:flex; align-items:center; justify-content:center; margin-bottom:18px; box-shadow:0 0 30px rgba(245,158,11,0.25);">
+            <i class="fa-solid fa-star" style="font-size:28px; color:#f59e0b;"></i>
+        </div>
+        <h1 style="font-size:30px; font-weight:800; letter-spacing:2px; margin-bottom:2px;">STAR<span style="color:#f59e0b;">OS</span></h1>
+        <p class="mono" style="font-size:10px; color:#666; margin-bottom:24px;">v30.0 MASTERPIECE EDITION</p>
+        <div style="width:200px; height:4px; background:#111; border-radius:4px; overflow:hidden; margin-bottom:12px;">
+            <div id="bootBar" style="width:0%; height:100%; background:#f59e0b; transition: width 0.15s;"></div>
+        </div>
+        <div id="bootLog" class="mono" style="font-size:10px; color:#666; margin-bottom:24px;">Mounting Star Engine Core...</div>
+        <button onclick="skipBootSequence()" style="padding:6px 16px; border-radius:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#aaa; font-size:10px; font-weight:700; cursor:pointer;" class="mono">[ SKIP BOOT ]</button>
+    </div>
+
+    <!-- TOP STATUS BAR -->
+    <div id="topBar">
+        <div style="display:flex; align-items:center; gap:14px;">
+            <span style="font-size:12px; font-weight:800; letter-spacing:1px; cursor:pointer;" onclick="openWindow('settingsWindow')"><i class="fa-solid fa-star" style="color:#f59e0b;"></i> STAR OS</span>
+            <span class="mono" style="font-size:10px; color:#888;" id="topUserTag">STAR(0000)</span>
+            <div onclick="openWindow('starBankWindow')" style="display:flex; align-items:center; gap:6px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:2px 10px; border-radius:12px; cursor:pointer;" title="Click to open StarBank">
+                <i class="fa-solid fa-star" style="color:#f59e0b; font-size:10px;"></i>
+                <span id="topStarBalanceText" class="mono" style="font-size:11px; font-weight:700; color:#f59e0b;">0 Stars</span>
             </div>
         </div>
-        <h1 class="text-5xl font-black tracking-widest text-white mb-2">STAR<span class="text-sky-400">OS</span></h1>
-        <p class="text-xs text-slate-400 mb-8 mono tracking-widest">ULTRA OS ENGINE V9.0</p>
-        <div class="w-full max-w-xs">
-            <div class="h-1.5 rounded-full bg-slate-900 border border-slate-800/80 overflow-hidden shadow-inner">
-                <div id="bootBar" class="h-full w-0 bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-500 transition-all duration-300 rounded-full"></div>
+        <div style="display:flex; align-items:center; gap:14px; font-size:11px;">
+            <button onclick="toggleDndMode()" id="dndTopBtn" style="background:none; border:none; color:#888; cursor:pointer;" title="Do Not Disturb"><i class="fa-solid fa-bell"></i></button>
+            <div style="display:flex; align-items:center; gap:6px; color:#aaa;" id="batteryTopWidget">
+                <i class="fa-solid fa-battery-full" id="batteryIcon"></i>
+                <span class="mono" style="font-size:10px;" id="batteryLevelText">100%</span>
+            </div>
+            <span class="mono" style="font-weight:600; color:#fff;" id="topClockWidget">12:00 PM</span>
+        </div>
+    </div>
+
+    <!-- MASTER ADMIN SECURITY & MANAGEMENT MODAL (CTRL x 3) -->
+    <div id="adminPanelModal" class="modal-overlay hidden">
+        <div class="glass-card" style="border-color: rgba(239, 68, 68, 0.5); max-width:680px; width:100%;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #2a1010; padding-bottom:10px;">
+                <span style="font-weight:800; color:#ef4444; font-size:14px;"><i class="fa-solid fa-shield-halved"></i> Master OS Security & Admin Panel</span>
+                <button onclick="toggleAdminPanel(false)" style="background:none; border:none; color:#888; cursor:pointer; font-size:14px;">✕</button>
+            </div>
+            
+            <div id="adminAuthLock" style="text-align:center; padding:20px 0;">
+                <p style="font-size:12px; color:#aaa; margin-bottom:12px;">Enter Master Admin Passcode:</p>
+                <input type="password" id="adminPassInput" class="form-input" style="text-align:center; font-size:18px; letter-spacing:6px; width:200px; margin:0 auto 12px auto;" placeholder="••••">
+                <button onclick="verifyAdminKey()" class="btn-primary" style="background:#ef4444; color:#fff; width:200px; margin:0 auto;">Unlock Admin Controls</button>
+            </div>
+
+            <div id="adminControlsArea" style="display:none; flex-direction:column; gap:14px; max-height:500px; overflow-y:auto;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div style="background:#140808; border:1px solid #380d0d; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-size:11px; font-weight:700; display:block; color:#fff;">Global Chat Mute</span>
+                            <span style="font-size:9px; color:#888;">Block all chat submissions</span>
+                        </div>
+                        <button onclick="toggleAdminMuteChat()" id="adminMuteChatBtn" style="padding:6px 12px; border-radius:6px; background:#ef4444; color:#fff; border:none; font-weight:700; font-size:10px; cursor:pointer;">Disable Chat</button>
+                    </div>
+                    <div style="background:#140808; border:1px solid #380d0d; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-size:11px; font-weight:700; display:block; color:#fff;">Global App Upload Lock</span>
+                            <span style="font-size:9px; color:#888;">Lock community publishing</span>
+                        </div>
+                        <button onclick="toggleAdminLockUploads()" id="adminLockUploadsBtn" style="padding:6px 12px; border-radius:6px; background:#ef4444; color:#fff; border:none; font-weight:700; font-size:10px; cursor:pointer;">Lock Uploads</button>
+                    </div>
+                </div>
+
+                <div style="background:#140808; border:1px solid #380d0d; border-radius:10px; padding:12px;">
+                    <span style="font-size:11px; font-weight:700; display:block; margin-bottom:6px; color:#fff;">Broadcast OS System Alert</span>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="adminBroadcastInput" placeholder="System alert message..." class="form-input" style="margin:0;">
+                        <button onclick="sendAdminBroadcast()" style="padding:0 16px; border-radius:8px; background:#fff; color:#000; font-weight:700; font-size:11px; border:none; cursor:pointer;">Send Alert</button>
+                    </div>
+                </div>
+
+                <div style="background:#140808; border:1px solid #380d0d; border-radius:10px; padding:12px;">
+                    <span style="font-size:12px; font-weight:700; display:block; margin-bottom:6px; color:#fff;">User Directory & Rank/Star Management</span>
+                    <input type="text" id="adminUserSearchInput" onkeyup="filterAdminUserDirectory()" placeholder="Search user by username or STAR ID..." class="form-input" style="margin-bottom:10px;">
+                    <div id="adminUserDirectoryList" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto;"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ACCOUNT AUTHENTICATION MODAL -->
-    <div id="authScreen" class="fixed inset-0 z-[90000] bg-[#02040a]/90 backdrop-blur-3xl hidden flex flex-col items-center justify-center p-6">
-        <div class="glass-panel w-full max-w-md rounded-3xl p-8 border border-sky-500/30 flex flex-col items-center shadow-2xl">
-            <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400/50 flex items-center justify-center text-sky-400 mb-4">
-                <i data-lucide="shield-check" class="w-8 h-8"></i>
-            </div>
-            <h2 id="authTitle" class="text-xl font-bold text-white mb-1">Account Sign In</h2>
-            <p id="authSub" class="text-xs text-slate-400 mb-6 text-center">Access your Star OS Profile</p>
-
-            <div class="w-full space-y-3">
+    <!-- AUTHENTICATION SCREEN -->
+    <div id="authScreen" class="modal-overlay hidden">
+        <div class="glass-card">
+            <h2 id="authTitle" style="font-size:18px; font-weight:800; margin-bottom:2px;">Sign In to Star OS</h2>
+            <p id="authSub" style="font-size:11px; color:#777; margin-bottom:16px;">Enter credentials to unlock desktop workspace</p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
                 <div>
-                    <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Username</label>
-                    <input type="text" id="authUsername" placeholder="Enter username..." class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                    <label style="font-size:9px; color:#888; font-weight:700;">USERNAME</label>
+                    <input type="text" id="authUsername" class="form-input" placeholder="e.g. William">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Password</label>
-                    <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                    <label style="font-size:9px; color:#888; font-weight:700;">PASSWORD</label>
+                    <input type="password" id="authPassword" class="form-input" placeholder="••••••••">
                 </div>
-                <div id="avatarInputGroup" class="hidden">
-                    <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Profile Picture (Image URL)</label>
-                    <input type="text" id="authAvatar" placeholder="https://example.com/avatar.png" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                <div>
+                    <label style="font-size:9px; color:#888; font-weight:700;">PROFILE PICTURE (FILE OR URL)</label>
+                    <input type="file" id="authPfpFile" accept="image/*" class="form-input" style="margin-bottom:4px;">
+                    <input type="text" id="authPfpUrl" class="form-input" placeholder="Or paste image URL...">
                 </div>
             </div>
-
-            <button onclick="submitAuth()" class="w-full py-3 mt-6 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs hover:bg-sky-400 transition">Continue</button>
-            
-            <div class="mt-4 text-center">
-                <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-xs text-sky-400 hover:underline">Need a new account? Create one</button>
-            </div>
+            <button onclick="submitAuth()" class="btn-primary">Continue & Unlock</button>
+            <button onclick="toggleAuthMode()" id="authToggleBtn" style="background:none; border:none; color:#777; font-size:10px; margin-top:12px; width:100%; cursor:pointer;">Need a new account? Create one</button>
         </div>
     </div>
 
     <!-- MAIN DESKTOP ENVIRONMENT -->
-    <div id="desktopEnv" class="flex-1 relative w-full h-full overflow-hidden opacity-0 transition-opacity duration-1000 z-10 pb-12">
+    <div id="desktopEnv" onmousedown="handleDesktopMouseDown(event)">
+        
+        <!-- DESKTOP APPS GRID -->
+        <div id="desktopAppGrid"></div>
 
-        <!-- DESKTOP APP ICONS GRID -->
-        <div id="desktopAppGrid" class="absolute top-6 left-6 grid grid-flow-col grid-rows-6 gap-6 z-10"></div>
+        <!-- WORKSPACE WINDOWS -->
+        <div id="windowWorkspace">
 
-        <!-- WINDOW WORKSPACE -->
-        <div id="windowWorkspace" class="absolute inset-0 w-full h-full overflow-hidden pb-12">
-
-            <!-- DISCORD CHAT WINDOW -->
-            <div id="chatWindow" class="os-window hidden w-[940px] h-[620px] top-8 left-24" style="z-index: 101;">
-                <div class="window-header px-4 py-2.5 flex items-center justify-between bg-[#1e1f22]" onmousedown="dragMouseDown(event, 'chatWindow')">
-                    <div class="flex items-center gap-2"><span class="text-base font-bold text-purple-400">#</span><span id="activeChannelTitle" class="text-xs font-bold text-white">general-lounge</span></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('chatWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
-                </div>
-                <div class="flex-1 flex bg-[#313338] text-[#dbdee1] overflow-hidden text-xs">
-                    <div class="w-64 bg-[#2b2d31] flex flex-col border-r border-[#1f2023] shrink-0">
-                        <div class="p-3 border-b border-[#1f2023] space-y-2">
-                            <div class="flex items-center justify-between font-bold text-white">
-                                <span>Active Servers</span>
-                                <button onclick="createNewDiscordServer()" class="text-xs px-2 py-0.5 rounded bg-purple-600 text-white font-bold">+</button>
-                            </div>
-                            <input type="text" id="searchChannelInput" oninput="filterChannels()" placeholder="Search channels..." class="w-full bg-[#1e1f22] border border-[#1f2023] rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none">
-                        </div>
-                        <div class="p-2 space-y-0.5 flex-1 overflow-y-auto" id="discordChannelList"></div>
-                        <div class="p-3 bg-[#232428] border-t border-[#1f2023] flex flex-col gap-1">
-                            <div class="flex items-center gap-2">
-                                <img id="chatUserAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" class="w-8 h-8 rounded-full object-cover">
-                                <div class="flex-1 min-w-0">
-                                    <div class="font-bold text-white text-xs truncate" id="discordUserName">User</div>
-                                    <div class="text-[10px] text-pink-400 font-semibold truncate" id="discordUserPartner">Lover: None</div>
-                                </div>
-                            </div>
-                        </div>
+            <!-- STARBANK CURRENCY & LEDGER ENGINE -->
+            <div id="starBankWindow" class="os-window hidden" style="width:780px; height:520px; top:40px; left:80px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'starBankWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;"><i class="fa-solid fa-wallet" style="color:#f59e0b;"></i> StarBank & Star Ledger</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('starBankWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('starBankWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('starBankWindow')" class="win-btn close-btn">✕</button>
                     </div>
-                    <div class="flex-1 flex flex-col bg-[#313338] overflow-hidden relative">
-                        <div id="chatMessagesList" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
-                        <div class="p-4 bg-[#313338]">
-                            <div class="bg-[#383a40] rounded-xl p-2.5 flex items-center gap-3">
-                                <input type="text" id="chatInput" onkeydown="if(event.key==='Enter')sendChatMessage()" placeholder="Message channel..." class="flex-1 bg-transparent text-white focus:outline-none text-xs">
-                                <label class="p-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 cursor-pointer text-slate-300" title="Attach file up to 250MB"><i data-lucide="paperclip" class="w-4 h-4"></i><input type="file" id="chatAttachmentInput" class="hidden" onchange="sendChatMessageWithAttachment(event)"></label>
-                                <button onclick="sendChatMessage()" class="px-4 py-1.5 rounded-lg bg-purple-600 text-white font-semibold">Send</button>
+                </div>
+                <div style="flex:1; display:flex; background:#0b0b10; overflow:hidden;">
+                    <div style="width:280px; background:#12121a; border-right:1px solid #222; padding:18px; display:flex; flex-direction:column; gap:16px;">
+                        <div style="background:linear-gradient(135deg, rgba(245,158,11,0.2), rgba(0,0,0,0.4)); border:1px solid rgba(245,158,11,0.4); border-radius:14px; padding:16px; text-align:center;">
+                            <span style="font-size:10px; color:#aaa; font-weight:700; display:block; margin-bottom:4px;">YOUR STAR BALANCE</span>
+                            <div style="font-size:30px; font-weight:800; color:#f59e0b;" class="mono" id="bankBalanceDisplay">0 🌟</div>
+                            <span style="font-size:9px; color:#777; margin-top:4px; display:block;">Star OS Universal Currency</span>
+                        </div>
+                        <div>
+                            <span style="font-size:12px; font-weight:700; color:#fff; display:block; margin-bottom:8px;">Transfer Stars</span>
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <input type="text" id="bankTargetUserInput" placeholder="Recipient Username or STAR ID" class="form-input">
+                                <input type="number" id="bankAmountInput" placeholder="Amount of Stars..." class="form-input">
+                                <button onclick="sendStarTransfer()" class="btn-primary" style="background:#f59e0b; color:#000;"><i class="fa-solid fa-paper-plane"></i> Send Stars</button>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- USER PROFILE & PARTNER MODAL -->
-            <div id="userProfileModal" class="hidden fixed inset-0 z-[80000] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-                <div class="glass-panel w-full max-w-sm rounded-3xl p-6 border border-purple-500/40 flex flex-col items-center text-center relative">
-                    <button onclick="closeUserProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
-                    <img id="modalUserAvatar" src="" class="w-20 h-20 rounded-full object-cover border-2 border-purple-400 mb-3 shadow-lg">
-                    <h3 id="modalUserName" class="font-bold text-white text-base">Username</h3>
-                    <p id="modalUserPartner" class="text-xs text-pink-400 font-semibold mb-6">Lover: None</p>
-                    <div class="w-full space-y-2">
-                        <button onclick="sendPartnerRequest()" class="w-full py-2.5 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs transition flex items-center justify-center gap-2">
-                            <i data-lucide="heart" class="w-4 h-4"></i> Send Partner Request
-                        </button>
-                        <button onclick="startDirectMessage()" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition flex items-center justify-center gap-2">
-                            <i data-lucide="message-circle" class="w-4 h-4"></i> Send Direct Message
-                        </button>
+                    <div style="flex:1; padding:18px; display:flex; flex-direction:column; gap:12px; background:#0b0b10;">
+                        <span style="font-size:12px; font-weight:700; color:#fff;">Live Currency Transaction History</span>
+                        <div id="starTransactionHistoryList" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px;"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- APP STORE WINDOW -->
-            <div id="storeWindow" class="os-window hidden w-[960px] h-[620px] top-12 left-20" style="z-index: 102;">
-                <div class="window-header px-4 py-3 flex items-center justify-between" onmousedown="dragMouseDown(event, 'storeWindow')">
-                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center text-amber-300"><i data-lucide="store" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white">Star OS Global App Store (250MB Limit)</div></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('storeWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('storeWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('storeWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+            <!-- STAR+ MARKET & COIN MAKER -->
+            <div id="starPlusWindow" class="os-window hidden" style="width:840px; height:540px; top:35px; left:90px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'starPlusWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;"><i class="fa-solid fa-chart-line" style="color:#22c55e;"></i> Star+ Market & Coin Maker Simulator</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('starPlusWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('starPlusWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('starPlusWindow')" class="win-btn close-btn">✕</button>
+                    </div>
                 </div>
-                <div class="flex-1 p-6 bg-slate-950 grid grid-cols-2 gap-6 overflow-y-auto">
-                    <div class="space-y-4">
-                        <h3 class="font-bold text-white text-xs uppercase tracking-wider">Local Apps & Uploads</h3>
-                        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-                            <label class="block p-4 border border-dashed border-sky-400/40 rounded-xl text-center cursor-pointer bg-sky-500/5 hover:bg-sky-500/10 transition"><span class="text-xs font-bold text-sky-300">Import HTML File App</span><input type="file" accept=".html" class="hidden" onchange="importAppFile(event)"></label>
-                            <div class="space-y-2">
-                                <input type="text" id="pubWebTitle" placeholder="Website / App Title" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
-                                <input type="text" id="pubWebUrl" placeholder="Live Web URL (e.g. https://example.com)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
-                                <button onclick="publishWebUrl()" class="w-full py-2 rounded-xl bg-purple-600 text-white font-bold text-xs hover:bg-purple-500 transition">Publish Web App</button>
+                <div style="flex:1; display:flex; background:#0a0a0e; overflow:hidden;">
+                    <!-- Create Coin Sidebar -->
+                    <div style="width:280px; background:#111118; border-right:1px solid #222; padding:16px; display:flex; flex-direction:column; gap:12px; overflow-y:auto;">
+                        <span style="font-size:12px; font-weight:700; color:#fff;">Mint Custom Coin / Token</span>
+                        <div>
+                            <label style="font-size:9px; color:#888; font-weight:700;">COIN TICKER (e.g. MOON)</label>
+                            <input type="text" id="mintCoinTicker" placeholder="MOON" class="form-input" style="text-transform:uppercase;">
+                        </div>
+                        <div>
+                            <label style="font-size:9px; color:#888; font-weight:700;">STARTING PRICE (STARS)</label>
+                            <input type="number" id="mintCoinPrice" value="10" class="form-input">
+                        </div>
+                        <button onclick="mintCustomCoin()" class="btn-primary" style="background:#22c55e; color:#000;"><i class="fa-solid fa-coins"></i> Mint Coin (50 🌟 Fee)</button>
+                        
+                        <div style="border-top:1px solid #222; padding-top:12px; margin-top:6px;">
+                            <span style="font-size:12px; font-weight:700; color:#fff; display:block; margin-bottom:6px;">Automated Star+ System</span>
+                            <p style="font-size:10px; color:#888; line-height:1.4;">Prices fluctuate automatically up or down every few seconds based on the Star+ market volatility engine!</p>
+                        </div>
+                    </div>
+
+                    <!-- Market Live View -->
+                    <div style="flex:1; padding:18px; display:flex; flex-direction:column; gap:14px; background:#0e0e14; overflow-y:auto;">
+                        <span style="font-size:12px; font-weight:700; color:#fff;">Active Star+ Trading Floor</span>
+                        <div id="starPlusCoinsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEVELOPER STUDIOS ENGINE -->
+            <div id="studiosWindow" class="os-window hidden" style="width:860px; height:560px; top:30px; left:95px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'studiosWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;"><i class="fa-solid fa-city" style="color:#3b82f6;"></i> Developer Studios Hub & Public Stats</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('studiosWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('studiosWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('studiosWindow')" class="win-btn close-btn">✕</button>
+                    </div>
+                </div>
+                <div style="flex:1; display:flex; background:#09090e; overflow:hidden;">
+                    <div style="width:290px; background:#101017; border-right:1px solid #222; padding:16px; display:flex; flex-direction:column; gap:14px; overflow-y:auto;">
+                        <div>
+                            <span style="font-size:12px; font-weight:700; color:#fff; display:block; margin-bottom:4px;">Create Developer Studio</span>
+                            <span style="font-size:9px; color:#777; display:block; margin-bottom:8px;">Pool funds and build together</span>
+                            <input type="text" id="newStudioNameInput" placeholder="Studio Name (e.g. Apex Labs)" class="form-input" style="margin-bottom:6px;">
+                            <button onclick="createNewStudio()" class="btn-primary" style="background:#3b82f6; color:#fff;"><i class="fa-solid fa-plus"></i> Launch Studio</button>
+                        </div>
+                        <div style="border-top:1px solid #222; padding-top:12px;">
+                            <span style="font-size:12px; font-weight:700; color:#fff; display:block; margin-bottom:6px;">All Public Studios</span>
+                            <div id="publicStudiosList" style="display:flex; flex-direction:column; gap:6px;"></div>
+                        </div>
+                    </div>
+                    <div style="flex:1; padding:18px; display:flex; flex-direction:column; gap:14px; background:#0e0e14; overflow-y:auto;" id="studioDetailContainer">
+                        <div style="text-align:center; padding:40px; color:#666; font-size:11px;">Select or create a studio from the sidebar.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DISCORD SOCIAL WINDOW -->
+            <div id="chatWindow" class="os-window hidden" style="width:920px; height:590px; top:20px; left:50px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'chatWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;" id="activeChannelTitle"><i class="fa-brands fa-discord"></i> # general-chat</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('chatWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('chatWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('chatWindow')" class="win-btn close-btn">✕</button>
+                    </div>
+                </div>
+                <div style="flex:1; display:flex; background:#111116; overflow:hidden;">
+                    <div style="width:230px; background:#16161c; border-right:1px solid #222; display:flex; flex-direction:column;">
+                        <div style="padding:10px 12px; border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:11px; font-weight:700; color:#fff;">Text Channels</span>
+                            <button onclick="createNewChannel()" style="background:#333; border:none; color:#fff; width:22px; height:22px; border-radius:4px; font-weight:700; cursor:pointer;" title="Create Channel">+</button>
+                        </div>
+                        <div id="discordChannelList" style="flex:1; overflow-y:auto; padding:6px; display:flex; flex-direction:column; gap:2px;"></div>
+                        <div style="padding:10px; background:#0d0d12; border-top:1px solid #222; display:flex; align-items:center; gap:8px;">
+                            <img id="chatUserAvatar" src="" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+                            <div style="overflow:hidden;">
+                                <div style="font-size:11px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="discordUserName">User</div>
+                                <div style="font-size:9px; color:#f59e0b;" id="discordUserPartner">Lover: None</div>
                             </div>
                         </div>
-                        <div id="localAppsList" class="space-y-2"></div>
                     </div>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-white text-xs uppercase tracking-wider">Public Catalogue</h3>
-                            <input type="text" id="searchGlobalAppsInput" oninput="loadGlobalApps()" placeholder="Search apps..." class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none">
+                    <div style="flex:1; display:flex; flex-direction:column; background:#1a1a22; position:relative;">
+                        <div id="chatMessagesList" style="flex:1; padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
+                        
+                        <div id="cameraPreviewArea" style="display:none; padding:10px; background:#0d0d12; border-top:1px solid #222; align-items:center; gap:10px;">
+                            <video id="cameraStreamVideo" autoplay style="width:110px; height:80px; background:#000; border-radius:6px; object-fit:cover;"></video>
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <button onclick="captureCameraPhoto()" style="padding:5px 10px; border-radius:6px; background:#fff; color:#000; border:none; font-weight:700; font-size:10px; cursor:pointer;">Snap & Send</button>
+                                <button onclick="closeCameraStream()" style="padding:5px 10px; border-radius:6px; background:#222; border:none; color:#888; font-size:10px; cursor:pointer;">Cancel</button>
+                            </div>
                         </div>
-                        <div id="globalAppsList" class="space-y-2"></div>
+
+                        <div style="padding:10px; background:#141418; border-top:1px solid #222;">
+                            <div style="background:#202028; border-radius:8px; padding:6px 10px; display:flex; align-items:center; gap:8px;">
+                                <input type="text" id="chatInput" onkeydown="if(event.key==='Enter')sendChatMessage()" placeholder="Type a message..." style="flex:1; background:transparent; border:none; color:#fff; font-size:11px; outline:none;">
+                                <button onclick="startCameraStream()" style="background:none; border:none; color:#888; cursor:pointer; font-size:13px;" title="Camera Photo"><i class="fa-solid fa-camera"></i></button>
+                                <button id="voiceRecBtn" onclick="toggleVoiceRecording()" style="background:none; border:none; color:#888; cursor:pointer; font-size:13px;" title="Voice Note"><i class="fa-solid fa-microphone"></i></button>
+                                <button onclick="sendChatMessage()" style="padding:5px 12px; border-radius:6px; background:#fff; color:#000; border:none; font-weight:700; font-size:10px; cursor:pointer;">Send</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- FILES WINDOW -->
-            <div id="filesWindow" class="os-window hidden w-[860px] h-[560px] top-14 left-24" style="z-index: 103;">
-                <div class="window-header px-4 py-3 flex items-center justify-between" onmousedown="dragMouseDown(event, 'filesWindow')">
-                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-xl bg-cyan-400/20 border border-cyan-300/30 flex items-center justify-center text-cyan-200"><i data-lucide="folder-open" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white">Star OS File System</div></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('filesWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('filesWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('filesWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
-                </div>
-                <div class="flex-1 p-5 bg-slate-950 flex flex-col gap-3">
-                    <div class="flex justify-between items-center"><label class="px-4 py-2 rounded-xl bg-cyan-400 text-slate-950 text-xs font-bold cursor-pointer hover:bg-cyan-300 transition">Import File (250MB Max)<input type="file" multiple class="hidden" onchange="importFiles(event)"></label><span id="fileCountStat" class="text-xs text-slate-400 mono">0 files stored</span></div>
-                    <div id="userFilesList" class="flex-1 overflow-y-auto space-y-2"></div>
-                </div>
-            </div>
-
-            <!-- RUNNER WINDOW FOR APPS -->
-            <div id="appRunnerWindow" class="os-window hidden w-[900px] h-[600px] top-10 left-20" style="z-index: 110;">
-                <div class="window-header px-4 py-2.5 flex items-center justify-between" onmousedown="dragMouseDown(event, 'appRunnerWindow')">
-                    <div class="flex items-center gap-2"><i data-lucide="play" class="w-4 h-4 text-sky-400"></i><span id="appRunnerTitle" class="text-xs font-bold text-white">App Sandbox</span></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('appRunnerWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('appRunnerWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('appRunnerWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
-                </div>
-                <div class="flex-1 bg-white relative">
-                    <iframe id="appRunnerIframe" class="w-full h-full border-0"></iframe>
+            <!-- USER PROFILE & LOVER REQUEST MODAL -->
+            <div id="userProfileModal" class="modal-overlay hidden">
+                <div class="glass-card" style="max-width:340px; text-align:center; position:relative;">
+                    <button onclick="closeUserProfileModal()" style="position:absolute; top:12px; right:12px; background:none; border:none; color:#888; cursor:pointer;">✕</button>
+                    <img id="modalUserAvatar" src="" style="width:76px; height:76px; border-radius:50%; object-fit:cover; border:2px solid #fff; margin:0 auto 10px auto;">
+                    <h3 id="modalUserName" style="font-size:16px; font-weight:800; color:#fff;">Username</h3>
+                    <p id="modalStarId" class="mono" style="font-size:10px; color:#888; margin-bottom:2px;">STAR(0000)</p>
+                    <p id="modalUserPartner" style="font-size:11px; color:#f59e0b; font-weight:700; margin-bottom:16px;">Lover: None</p>
+                    
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <button id="sendLoverRequestBtn" onclick="sendPartnerRequest()" style="width:100%; padding:9px; border-radius:8px; background:#fff; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;"><i class="fa-solid fa-heart" style="color:#ef4444;"></i> Send Lover Connection Request</button>
+                        <button onclick="startDirectMessage()" style="width:100%; padding:9px; border-radius:8px; background:#222; color:#fff; font-weight:700; font-size:10px; border:1px solid #333; cursor:pointer;"><i class="fa-solid fa-message"></i> Send Direct Message</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- SETTINGS WINDOW -->
-            <div id="settingsWindow" class="os-window hidden w-[680px] h-[580px] top-16 left-44" style="z-index: 106;">
-                <div class="window-header px-4 py-3 flex items-center justify-between" onmousedown="dragMouseDown(event, 'settingsWindow')">
-                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-xl bg-emerald-400/20 border border-emerald-300/30 flex items-center justify-center text-emerald-300"><i data-lucide="settings" class="w-4 h-4"></i></div><div class="text-xs font-bold text-white">System Settings</div></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('settingsWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+            <!-- INCOMING LOVER REQUEST MODAL -->
+            <div id="loverRequestModal" class="modal-overlay hidden">
+                <div class="glass-card" style="max-width:340px; text-align:center;">
+                    <i class="fa-solid fa-heart" style="font-size:32px; color:#ef4444; margin-bottom:12px;"></i>
+                    <h3 style="font-size:16px; font-weight:800; color:#fff; margin-bottom:4px;">Incoming Lover Request!</h3>
+                    <p id="loverRequestText" style="font-size:11px; color:#aaa; margin-bottom:18px;">User wants to connect with you.</p>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="acceptLoverRequest()" class="btn-primary" style="background:#22c55e; color:#000; margin:0;">Accept</button>
+                        <button onclick="denyLoverRequest()" class="btn-primary" style="background:#ef4444; color:#fff; margin:0;">Deny</button>
+                    </div>
                 </div>
-                <div class="flex-1 p-6 bg-slate-950 space-y-4 text-xs overflow-y-auto">
-                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <img id="settingsAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" class="w-10 h-10 rounded-full object-cover">
+            </div>
+
+            <!-- TRI-CATEGORY COMMUNITY APP STORE -->
+            <div id="storeWindow" class="os-window hidden" style="width:900px; height:580px; top:30px; left:60px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'storeWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;"><i class="fa-solid fa-store" style="color:#f59e0b;"></i> Community App & Proxy Store</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('storeWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('storeWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('storeWindow')" class="win-btn close-btn">✕</button>
+                    </div>
+                </div>
+                <div style="flex:1; display:flex; flex-direction:column; background:#0d0d12; padding:16px; gap:14px; overflow-y:auto;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#14141a; border:1px solid #222; border-radius:10px; padding:10px 14px;">
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="switchStoreTab('apps')" id="storeTabApps" style="padding:6px 14px; border-radius:8px; background:#fff; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;">Apps & Games</button>
+                            <button onclick="switchStoreTab('proxies')" id="storeTabProxies" style="padding:6px 14px; border-radius:8px; background:#222; color:#aaa; font-weight:700; font-size:10px; border:none; cursor:pointer;">Proxy Routes</button>
+                            <button onclick="switchStoreTab('mods')" id="storeTabMods" style="padding:6px 14px; border-radius:8px; background:#222; color:#aaa; font-weight:700; font-size:10px; border:none; cursor:pointer;">Admin OS Mods</button>
+                        </div>
+                        <button onclick="openWindow('appStudioWindow')" style="padding:6px 12px; border-radius:6px; background:#f59e0b; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;"><i class="fa-solid fa-upload"></i> Publish App / Proxy / Mod</button>
+                    </div>
+                    <div>
+                        <span id="activeStoreCategoryLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:10px; color:#fff;">Normal Applications & Games</span>
+                        <div id="globalStoreAppsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APP STUDIO & PUBLISHING ENGINE -->
+            <div id="appStudioWindow" class="os-window hidden" style="width:940px; height:620px; top:20px; left:70px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'appStudioWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;"><i class="fa-solid fa-code"></i> Developer App Studio</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('appStudioWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('appStudioWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('appStudioWindow')" class="win-btn close-btn">✕</button>
+                    </div>
+                </div>
+                <div style="flex:1; display:flex; background:#0a0a0e; overflow:hidden;">
+                    <div style="width:300px; background:#121218; border-right:1px solid #222; padding:16px; display:flex; flex-direction:column; gap:10px; overflow-y:auto;">
+                        <span style="font-size:12px; font-weight:700; color:#fff;">Publish & Code Configuration</span>
+                        <div>
+                            <label style="font-size:9px; color:#888; font-weight:700;">TITLE</label>
+                            <input type="text" id="studioAppTitle" placeholder="App / Mod Title" class="form-input">
+                        </div>
+                        <div>
+                            <label style="font-size:9px; color:#888; font-weight:700;">CATEGORY TYPE</label>
+                            <select id="studioCategorySelect" class="form-input">
+                                <option value="apps">Normal App / Game</option>
+                                <option value="proxies">In-Browser Proxy Route</option>
+                                <option value="mods">Admin OS Theme / Mod</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:9px; color:#888; font-weight:700;">PRICE IN STARS (0 FOR FREE)</label>
+                            <input type="number" id="studioPriceInput" value="0" class="form-input">
+                        </div>
+                        <div>
+                            <label style="font-size:9px; color:#888; font-weight:700;">PUBLISH AS STUDIO (OPTIONAL)</label>
+                            <select id="studioSelectOwner" class="form-input">
+                                <option value="personal">Personal Account</option>
+                            </select>
+                        </div>
+                        <button onclick="publishStudioApp()" class="btn-primary" style="background:#f59e0b; color:#000;"><i class="fa-solid fa-cloud-arrow-up"></i> Publish to Community Store</button>
+                    </div>
+                    <div style="flex:1; display:flex; flex-direction:column; background:#101014;">
+                        <div style="padding:8px 12px; background:#16161c; border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:10px; font-weight:700; color:#888;" class="mono">STAR OS SDK HTML/JS EDITOR</span>
+                            <button onclick="runStudioPreview()" style="padding:4px 10px; border-radius:6px; background:#fff; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;"><i class="fa-solid fa-play"></i> Run Sandbox Preview</button>
+                        </div>
+                        <textarea id="studioCodeEditor" class="mono" style="flex:1; background:#08080c; border:none; padding:14px; color:#22c55e; font-size:11px; outline:none; resize:none;" placeholder="<!DOCTYPE html>&#10;<html>&#10;<body>&#10;  <h1>Custom App / Proxy</h1>&#10;</body>&#10;</html>"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IN-BROWSER PROXY ROUTER & STARHOME.NET -->
+            <div id="browserWindow" class="os-window hidden" style="width:920px; height:600px; top:30px; left:100px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'browserWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;"><i class="fa-solid fa-globe" style="color:#3b82f6;"></i> Star Browser & In-Browser Proxy Engine</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('browserWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('browserWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('browserWindow')" class="win-btn close-btn">✕</button>
+                    </div>
+                </div>
+                <div style="flex:1; display:flex; flex-direction:column; background:#111;">
+                    <div style="padding:6px 10px; background:#18181e; border-bottom:1px solid #222; display:flex; align-items:center; gap:8px;">
+                        <button onclick="browserNavigateHome()" style="background:none; border:none; color:#888; cursor:pointer;" title="StarHome"><i class="fa-solid fa-house"></i></button>
+                        <button onclick="browserNavigateBack()" style="background:none; border:none; color:#888; cursor:pointer;" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="browserRefresh()" style="background:none; border:none; color:#888; cursor:pointer;" title="Refresh"><i class="fa-solid fa-rotate-right"></i></button>
+                        <input type="text" id="browserAddressBar" onkeydown="if(event.key==='Enter')navigateBrowserUrl()" placeholder="Enter URL or proxy://route..." class="form-input" style="margin:0; flex:1;">
+                        <button onclick="navigateBrowserUrl()" style="padding:5px 12px; border-radius:6px; background:#fff; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;">Go</button>
+                    </div>
+                    <iframe id="browserIframe" style="flex:1; width:100%; border:none; background:#fff;" src="about:blank"></iframe>
+                </div>
+            </div>
+
+            <!-- FILES MANAGER & STORAGE EXPANSION -->
+            <div id="filesWindow" class="os-window hidden" style="width:800px; height:520px; top:40px; left:120px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'filesWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;"><i class="fa-solid fa-folder" style="color:#f59e0b;"></i> File Manager & Cloud Storage</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('filesWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('filesWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('filesWindow')" class="win-btn close-btn">✕</button>
+                    </div>
+                </div>
+                <div style="flex:1; padding:16px; background:#0d0d12; display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#14141a; padding:10px 14px; border-radius:10px; border:1px solid #222;">
+                        <label style="padding:6px 14px; border-radius:8px; background:#fff; color:#000; font-weight:700; font-size:10px; cursor:pointer;">
+                            <i class="fa-solid fa-upload"></i> Upload File
+                            <input type="file" multiple style="display:none;" onchange="importStorageFiles(event)">
+                        </label>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span id="fileStorageStat" class="mono" style="font-size:10px; color:#f59e0b;">Storage: 0MB / 100MB</span>
+                            <button onclick="buyStorageWithStars(100, 50)" style="padding:6px 10px; border-radius:6px; background:#f59e0b; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;">Buy +100MB (50 🌟)</button>
+                        </div>
+                    </div>
+                    <div id="userFilesList" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px;"></div>
+                </div>
+            </div>
+
+            <!-- APP RUNNER SANDBOX -->
+            <div id="appRunnerWindow" class="os-window hidden" style="width:920px; height:600px; top:30px; left:110px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'appRunnerWindow')">
+                    <span id="appRunnerTitle" style="font-size:12px; font-weight:700; color:#fff;">App Execution Sandbox</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('appRunnerWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('appRunnerWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('appRunnerWindow')" class="win-btn close-btn">✕</button>
+                    </div>
+                </div>
+                <div style="flex:1; background:#fff; position:relative;">
+                    <iframe id="appRunnerIframe" style="width:100%; height:100%; border:none;" allow="autoplay; fullscreen; camera; microphone; pointer-lock"></iframe>
+                </div>
+            </div>
+
+            <!-- SYSTEM SETTINGS WINDOW -->
+            <div id="settingsWindow" class="os-window hidden" style="width:640px; height:540px; top:45px; left:130px;">
+                <div class="window-header" onmousedown="dragMouseDown(event, 'settingsWindow')">
+                    <span style="font-size:12px; font-weight:700; color:#fff;"><i class="fa-solid fa-gear"></i> System Settings</span>
+                    <div class="window-controls">
+                        <button onclick="minimizeWindow('settingsWindow')" class="win-btn">—</button>
+                        <button onclick="toggleFullscreen('settingsWindow')" class="win-btn">☐</button>
+                        <button onclick="closeWindow('settingsWindow')" class="win-btn close-btn">✕</button>
+                    </div>
+                </div>
+                <div style="flex:1; padding:18px; background:#0d0d12; display:flex; flex-direction:column; gap:14px; overflow-y:auto;">
+                    <div style="background:#14141a; border:1px solid #222; border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <img id="settingsAvatar" src="" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:1px solid #444;">
                             <div>
-                                <span id="settingsUserDisplay" class="font-bold text-white block text-sm">User Profile</span>
-                                <span class="text-slate-400 text-[10px]">Local User Account</span>
+                                <span id="settingsUserDisplay" style="font-size:13px; font-weight:800; display:block;">User</span>
+                                <span id="settingsStarId" class="mono" style="font-size:10px; color:#666;">STAR(0000)</span>
                             </div>
                         </div>
-                        <button onclick="handleSignOut()" class="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold hover:bg-rose-500/30 transition">Sign Out</button>
+                        <button onclick="handleSignOut()" style="padding:6px 12px; border-radius:8px; background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid rgba(239,68,68,0.3); font-size:10px; font-weight:700; cursor:pointer;">Sign Out</button>
                     </div>
 
-                    <!-- App Launch Setting -->
-                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-                        <span class="font-bold text-white block">App Execution Target</span>
-                        <div class="flex gap-4 items-center">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="appExecMode" value="sandbox" checked onchange="setAppExecMode('sandbox')">
-                                <span class="text-slate-300">Run in OS Window Sandbox</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="appExecMode" value="newtab" onchange="setAppExecMode('newtab')">
-                                <span class="text-slate-300">Run in New Browser Tab</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Accent Color Picker -->
-                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-                        <span class="font-bold text-white block">System Accent Color Palette</span>
-                        <div class="flex items-center gap-3">
-                            <input type="color" id="accentColorPicker" value="#38bdf8" onchange="applyCustomAccentColor(this.value)" class="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0">
-                            <span class="text-slate-400 text-xs">Select any custom hex color from the palette selector</span>
-                        </div>
-                    </div>
-
-                    <!-- Wallpaper Customization -->
-                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-                        <span class="font-bold text-white block">Desktop Wallpaper Customization</span>
-                        <div class="space-y-2">
-                            <div class="flex gap-2">
-                                <input type="text" id="wallpaperUrlInput" placeholder="Enter image URL..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-                                <button onclick="setWallpaperFromUrl()" class="px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold">Apply URL</button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <label class="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold cursor-pointer hover:bg-purple-500 transition">
-                                    Upload Background File
-                                    <input type="file" accept="image/*" class="hidden" onchange="setWallpaperFromFile(event)">
-                                </label>
-                                <button onclick="resetDefaultWallpaper()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Reset Aurora</button>
+                    <!-- Change Profile Picture -->
+                    <div style="background:#14141a; border:1px solid #222; border-radius:12px; padding:14px;">
+                        <span style="font-size:11px; font-weight:700; display:block; margin-bottom:6px;">Change Profile Picture (PFP)</span>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <input type="file" id="settingsPfpFile" accept="image/*" class="form-input">
+                            <div style="display:flex; gap:6px;">
+                                <input type="text" id="settingsPfpUrl" placeholder="Or paste image URL..." class="form-input" style="margin:0;">
+                                <button onclick="updateProfilePicture('settingsPfpFile', 'settingsPfpUrl')" style="padding:0 14px; border-radius:8px; background:#fff; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;">Update PFP</button>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- BROWSER & OUTLOOK SUITE WINDOWS -->
-            <div id="browserWindow" class="os-window hidden w-[880px] h-[560px] top-12 left-28" style="z-index: 105;">
-                <div class="window-header px-4 py-2.5 flex items-center justify-between" onmousedown="dragMouseDown(event, 'browserWindow')">
-                    <div class="flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-sky-400"></i><span class="text-xs font-bold text-white">Star Browser</span></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('browserWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
-                </div>
-                <div class="flex-1 flex flex-col bg-[#030712] overflow-hidden">
-                    <div class="p-2 border-b border-slate-800 flex items-center gap-2"><input type="text" id="urlInput" onkeydown="if(event.key==='Enter')navigateToUrl()" placeholder="Enter URL..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"></div>
-                    <div class="flex-1 relative w-full h-full overflow-hidden">
-                        <div id="pagePolarisHome" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"><i data-lucide="sparkles" class="w-12 h-12 text-sky-400 mb-4"></i><h2 class="text-xl font-bold text-white mb-2">StarNetwork.io</h2><p class="text-xs text-slate-400">High-Speed Web Browser Interface</p></div>
-                        <iframe id="browserIframe" class="absolute inset-0 w-full h-full border-0 hidden bg-white"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <div id="mailWindow" class="os-window hidden w-[900px] h-[580px] top-16 left-36" style="z-index: 104;">
-                <div class="window-header px-4 py-2.5 flex items-center justify-between bg-slate-900" onmousedown="dragMouseDown(event, 'mailWindow')">
-                    <div class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-sky-400"></i><span class="text-xs font-bold text-white">Outlook Mail (<span id="userMailHandle" class="text-sky-400">user@star</span>)</span></div>
-                    <div class="flex items-center gap-1.5"><button onclick="minimizeWindow('mailWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button><button onclick="toggleFullscreen('mailWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button><button onclick="closeWindow('mailWindow')" class="p-1 rounded hover:bg-slate-700 text-slate-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
-                </div>
-                <div class="flex-1 flex bg-[#030712] overflow-hidden text-xs">
-                    <div class="w-48 border-r border-slate-800 p-3 flex flex-col gap-3 bg-slate-900/80 shrink-0">
-                        <button onclick="showComposeMail()" class="w-full py-2.5 rounded-xl bg-sky-500 text-slate-950 font-bold flex items-center justify-center gap-2"><i data-lucide="pen-tool" class="w-4 h-4"></i> New Mail</button>
-                        <div class="space-y-1"><button onclick="switchMailTab('inbox')" class="w-full p-2.5 rounded-xl bg-sky-500/20 text-sky-300 font-semibold flex items-center justify-between">Inbox <span id="mailBadge">0</span></button><button onclick="switchMailTab('sent')" class="w-full p-2.5 rounded-xl text-slate-400 hover:bg-slate-800 flex items-center">Sent</button></div>
-                    </div>
-                    <div class="flex-1 flex overflow-hidden bg-slate-950/60 relative">
-                        <div id="mailListPane" class="w-64 border-r border-slate-800 overflow-y-auto p-2 space-y-1.5 shrink-0"></div>
-                        <div id="mailDetailPane" class="flex-1 p-6 overflow-y-auto flex flex-col"><div class="text-slate-500 text-center my-auto">Select an email to view.</div></div>
-                        <div id="mailComposePane" class="hidden p-6 flex-1 flex flex-col gap-3 bg-slate-900/95 absolute inset-0 z-20">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2"><h3 class="text-xs font-bold text-white">New Email</h3><button onclick="hideComposeMail()" class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button></div>
-                            <input type="text" id="mailRecipient" placeholder="To: recipient@star" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
-                            <input type="text" id="mailSubject" placeholder="Subject" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none">
-                            <textarea id="mailBody" rows="6" placeholder="Write message..." class="w-full flex-1 bg-slate-950 border border-slate-700 rounded-xl p-3.5 text-xs text-white focus:outline-none"></textarea>
-                            <div class="flex justify-end gap-2"><button onclick="hideComposeMail()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300">Cancel</button><button onclick="sendMail()" class="px-6 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold">Send</button></div>
+                    <!-- Custom Wallpaper -->
+                    <div style="background:#14141a; border:1px solid #222; border-radius:12px; padding:14px;">
+                        <span style="font-size:11px; font-weight:700; display:block; margin-bottom:6px;">Custom Desktop Wallpaper</span>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <input type="file" id="settingsWallpaperFile" accept="image/*" class="form-input" onchange="setWallpaperFromFile(event)">
+                            <div style="display:flex; gap:6px;">
+                                <input type="text" id="wallpaperUrlInput" placeholder="Or enter wallpaper URL..." class="form-input" style="margin:0;">
+                                <button onclick="setWallpaperFromUrl()" style="padding:0 14px; border-radius:8px; background:#fff; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;">Apply</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -476,180 +982,522 @@
 
         </div>
 
-        <!-- TASKBAR -->
-        <div id="taskbarDock" class="absolute bottom-0 inset-x-0 h-12 taskbar-glass flex items-center justify-between px-4 z-50">
-            <div class="flex items-center gap-2">
-                <button onclick="openWindow('storeWindow')" class="px-3 py-1.5 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs flex items-center gap-2 hover:bg-sky-400 transition">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i> Star OS
-                </button>
-                <div class="h-5 w-px bg-slate-800 mx-1"></div>
-                <button onclick="toggleTaskbarApp('chatWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-purple-400 transition" title="Discord"><i data-lucide="message-square" class="w-5 h-5"></i></button>
-                <button onclick="toggleTaskbarApp('storeWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-amber-400 transition" title="App Store"><i data-lucide="store" class="w-5 h-5"></i></button>
-                <button onclick="toggleTaskbarApp('filesWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-cyan-300 transition" title="Files"><i data-lucide="folder-open" class="w-5 h-5"></i></button>
-                <button onclick="toggleTaskbarApp('mailWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-indigo-400 transition" title="Outlook"><i data-lucide="mail" class="w-5 h-5"></i></button>
-                <button onclick="toggleTaskbarApp('browserWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-sky-400 transition" title="Browser"><i data-lucide="globe" class="w-5 h-5"></i></button>
-                <button onclick="toggleTaskbarApp('settingsWindow')" class="p-2 rounded-xl hover:bg-slate-800 text-emerald-400 transition" title="Settings"><i data-lucide="settings" class="w-5 h-5"></i></button>
+        <!-- TASKBAR DOCK -->
+        <div id="taskbarDock">
+            <div style="display:flex; align-items:center; gap:6px;">
+                <button onclick="openWindow('starBankWindow')" class="taskbar-btn"><i class="fa-solid fa-star" style="color:#f59e0b;"></i> Star OS</button>
+                <div style="width:1px; height:20px; background:#222; margin:0 4px;"></div>
+                <button onclick="toggleTaskbarApp('starBankWindow')" class="taskbar-icon-btn" title="StarBank"><i class="fa-solid fa-wallet" style="color:#f59e0b;"></i></button>
+                <button onclick="toggleTaskbarApp('starPlusWindow')" class="taskbar-icon-btn" title="Star+ Market"><i class="fa-solid fa-chart-line" style="color:#22c55e;"></i></button>
+                <button onclick="toggleTaskbarApp('chatWindow')" class="taskbar-icon-btn" title="Discord Social"><i class="fa-brands fa-discord"></i></button>
+                <button onclick="toggleTaskbarApp('appStudioWindow')" class="taskbar-icon-btn" title="Developer Studio"><i class="fa-solid fa-code"></i></button>
+                <button onclick="toggleTaskbarApp('studiosWindow')" class="taskbar-icon-btn" title="Studios Hub"><i class="fa-solid fa-city"></i></button>
+                <button onclick="toggleTaskbarApp('storeWindow')" class="taskbar-icon-btn" title="Community App Store"><i class="fa-solid fa-store"></i></button>
+                <button onclick="toggleTaskbarApp('browserWindow')" class="taskbar-icon-btn" title="Browser Router"><i class="fa-solid fa-globe"></i></button>
+                <button onclick="toggleTaskbarApp('filesWindow')" class="taskbar-icon-btn" title="File Manager"><i class="fa-solid fa-folder"></i></button>
+                <button onclick="toggleTaskbarApp('settingsWindow')" class="taskbar-icon-btn" title="Settings"><i class="fa-solid fa-gear"></i></button>
             </div>
-            <div class="flex items-center gap-3 text-xs text-slate-300">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span id="clockWidget" class="mono font-semibold">12:00 PM</span>
-            </div>
+            <div style="font-size:10px; font-weight:600; color:#888;" id="clockWidget" class="mono">12:00 PM</div>
         </div>
 
     </div>
 
-    <!-- SCRIPT ENGINE -->
+    <!-- MAIN ENGINE SCRIPT -->
     <script>
-        lucide.createIcons();
+        window.StarOS = {
+            notify: (title, body) => triggerOsNotification(title, body),
+            openApp: (id) => openWindow(id),
+            getUser: () => currentUser,
+            getStars: () => currentUser ? (currentUser.stars || 0) : 0,
+            injectCss: (cssCode) => {
+                document.getElementById('customOsStyleContainer').innerHTML = cssCode;
+                triggerOsNotification("Admin Mod Applied", "Custom OS style injected successfully.");
+            }
+        };
 
+        // SYSTEM CLOCK
         setInterval(() => {
-            document.getElementById('clockWidget').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (document.getElementById('clockWidget')) document.getElementById('clockWidget').textContent = timeStr;
+            if (document.getElementById('topClockWidget')) document.getElementById('topClockWidget').textContent = timeStr;
         }, 1000);
 
-        let isRegistering = false;
+        // BATTERY API
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                function updateBattery() {
+                    const level = Math.round(battery.level * 100);
+                    document.getElementById('batteryLevelText').textContent = level + '%';
+                    const icon = document.getElementById('batteryIcon');
+                    if (battery.charging) icon.className = 'fa-solid fa-battery-charging';
+                    else if (level > 75) icon.className = 'fa-solid fa-battery-full';
+                    else if (level > 30) icon.className = 'fa-solid fa-battery-half';
+                    else icon.className = 'fa-solid fa-battery-quarter';
+                }
+                updateBattery();
+                battery.addEventListener('levelchange', updateBattery);
+                battery.addEventListener('chargingchange', updateBattery);
+            });
+        }
+
+        // STARFIELD ANIMATION
+        const sfCanvas = document.getElementById('starfieldCanvas');
+        const sfCtx = sfCanvas.getContext('2d');
+        let stars = [];
+
+        function resizeStarfield() {
+            sfCanvas.width = window.innerWidth;
+            sfCanvas.height = window.innerHeight;
+            stars = [];
+            for (let i = 0; i < 220; i++) {
+                stars.push({
+                    x: Math.random() * sfCanvas.width,
+                    y: Math.random() * sfCanvas.height,
+                    size: Math.random() * 1.8 + 0.2,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.008 + 0.002
+                });
+            }
+        }
+        window.addEventListener('resize', resizeStarfield);
+        resizeStarfield();
+
+        function renderStarfield() {
+            sfCtx.clearRect(0, 0, sfCanvas.width, sfCanvas.height);
+            stars.forEach(s => {
+                s.alpha += s.speed;
+                if (s.alpha > 1 || s.alpha < 0) s.speed = -s.speed;
+                sfCtx.fillStyle = `rgba(255, 255, 255, ${Math.abs(s.alpha)})`;
+                sfCtx.beginPath();
+                sfCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                sfCtx.fill();
+            });
+            requestAnimationFrame(renderStarfield);
+        }
+        renderStarfield();
+
+        // GLOBAL OS STATE
         let currentUser = null;
-        let appExecMode = localStorage.getItem('star_app_exec_mode') || 'sandbox';
+        let targetModalUser = null;
+        let pendingLoverRequest = null;
+        let ctrlPressCount = 0;
+        let ctrlResetTimer = null;
+        let isGlobalChatMuted = false;
+        let isGlobalUploadMuted = false;
+        let isDndActive = false;
+        let activeStoreTab = 'apps';
+        let customProxyRoutes = {};
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let cameraStreamObj = null;
 
-        function setAppExecMode(mode) {
-            appExecMode = mode;
-            localStorage.setItem('star_app_exec_mode', mode);
+        // LOAD SAVED WALLPAPER ON INIT
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedWp = localStorage.getItem('star_wallpaper');
+            if (savedWp) {
+                document.getElementById('desktopBgLayer').style.backgroundImage = `url('${savedWp}')`;
+            }
+            runBootSequence();
+            loadStorageFiles();
+            initStarPlusMarket();
+        });
+
+        // TRIPLE CTRL ADMIN SHORTCUT
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Control') {
+                ctrlPressCount++;
+                clearTimeout(ctrlResetTimer);
+                if (ctrlPressCount >= 3) {
+                    ctrlPressCount = 0;
+                    toggleAdminPanel(true);
+                } else {
+                    ctrlResetTimer = setTimeout(() => { ctrlPressCount = 0; }, 900);
+                }
+            }
+        });
+
+        function toggleAdminPanel(show) {
+            const panel = document.getElementById('adminPanelModal');
+            if (show) panel.classList.remove('hidden');
+            else panel.classList.add('hidden');
         }
 
-        function toggleAuthMode() {
-            isRegistering = !isRegistering;
-            document.getElementById('authTitle').textContent = isRegistering ? "Create Account" : "Account Sign In";
-            document.getElementById('authSub').textContent = isRegistering ? "Register a new user credential" : "Access your Star OS profile";
-            document.getElementById('authToggleBtn').textContent = isRegistering ? "Already have an account? Sign In" : "Need a new account? Create one";
-            document.getElementById('avatarInputGroup').classList.toggle('hidden', !isRegistering);
+        function verifyAdminKey() {
+            const val = document.getElementById('adminPassInput').value.trim();
+            if (val === '1010') {
+                document.getElementById('adminAuthLock').style.display = 'none';
+                document.getElementById('adminControlsArea').style.display = 'flex';
+                loadAdminUserDirectory();
+            } else {
+                alert('Invalid Admin Passcode!');
+            }
         }
 
-        function openUserDB() {
+        function toggleAdminMuteChat() {
+            isGlobalChatMuted = !isGlobalChatMuted;
+            document.getElementById('adminMuteChatBtn').textContent = isGlobalChatMuted ? "Enable Chat" : "Disable Chat";
+        }
+
+        function toggleAdminLockUploads() {
+            isGlobalUploadMuted = !isGlobalUploadMuted;
+            document.getElementById('adminLockUploadsBtn').textContent = isGlobalUploadMuted ? "Unlock Uploads" : "Lock Uploads";
+        }
+
+        function sendAdminBroadcast() {
+            const text = document.getElementById('adminBroadcastInput').value.trim();
+            if (!text) return;
+            triggerOsNotification("SYSTEM BROADCAST", text);
+            document.getElementById('adminBroadcastInput').value = '';
+        }
+
+        async function openUserDB() {
             return new Promise((res, rej) => {
-                const req = indexedDB.open('star_users_db', 1);
+                const req = indexedDB.open('star_users_db_v3', 1);
                 req.onupgradeneeded = e => e.target.result.createObjectStore('users', { keyPath: 'username' });
                 req.onsuccess = e => res(e.target.result);
                 req.onerror = e => rej(e.target.error);
             });
         }
 
+        async function loadAdminUserDirectory() {
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readonly');
+            const req = tx.objectStore('users').getAll();
+            req.onsuccess = () => {
+                const users = req.result || [];
+                renderAdminUserList(users);
+            };
+        }
+
+        function renderAdminUserList(users) {
+            const list = document.getElementById('adminUserDirectoryList');
+            if (!list) return;
+            list.innerHTML = '';
+            users.forEach(u => {
+                const row = document.createElement('div');
+                row.style.cssText = "padding:8px; background:#1b0c0c; border:1px solid #380d0d; border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:11px;";
+                row.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="${u.avatar}" style="width:28px; height:28px; border-radius:50%; object-fit:cover;">
+                        <div>
+                            <span style="font-weight:700; color:#fff; display:block;">${u.username} <span class="rank-badge rank-${(u.rank||'user').toLowerCase()}">${u.rank||'user'}</span> ${u.banned ? '<span style="color:#ef4444;">[BANNED]</span>' : ''}</span>
+                            <span class="mono" style="font-size:9px; color:#888;">${u.starId} • Stars: ${u.stars || 0}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:4px; align-items:center;">
+                        <select onchange="adminSetUserRank('${u.username}', this.value)" class="form-input" style="padding:2px 6px; font-size:9px; margin:0; width:80px;">
+                            <option value="user" ${u.rank==='user'?'selected':''}>User</option>
+                            <option value="vip" ${u.rank==='vip'?'selected':''}>VIP</option>
+                            <option value="developer" ${u.rank==='developer'?'selected':''}>Developer</option>
+                            <option value="admin" ${u.rank==='admin'?'selected':''}>Admin</option>
+                        </select>
+                        <button onclick="adminEditUserStars('${u.username}')" style="padding:4px 8px; border-radius:4px; background:#f59e0b; color:#000; font-size:9px; font-weight:700; border:none; cursor:pointer;">Stars</button>
+                        <button onclick="adminToggleBanUser('${u.username}')" style="padding:4px 8px; border-radius:4px; background:${u.banned?'#22c55e':'#ef4444'}; color:#fff; font-size:9px; font-weight:700; border:none; cursor:pointer;">${u.banned?'Unban':'Ban'}</button>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        async function filterAdminUserDirectory() {
+            const query = document.getElementById('adminUserSearchInput').value.toLowerCase().trim();
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readonly');
+            const req = tx.objectStore('users').getAll();
+            req.onsuccess = () => {
+                const users = (req.result || []).filter(u => u.username.toLowerCase().includes(query) || (u.starId && u.starId.toLowerCase().includes(query)));
+                renderAdminUserList(users);
+            };
+        }
+
+        async function adminToggleBanUser(username) {
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            const req = store.get(username);
+            req.onsuccess = () => {
+                const u = req.result;
+                if (!u) return;
+                u.banned = !u.banned;
+                store.put(u);
+                loadAdminUserDirectory();
+            };
+        }
+
+        async function adminSetUserRank(username, rank) {
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            const req = store.get(username);
+            req.onsuccess = () => {
+                const u = req.result;
+                if (!u) return;
+                u.rank = rank;
+                store.put(u);
+                loadAdminUserDirectory();
+                triggerOsNotification("Rank Updated", `Set ${username}'s rank to ${rank}`);
+            };
+        }
+
+        async function adminEditUserStars(username) {
+            const newStars = prompt(`Enter new Star balance for ${username}:`);
+            if (newStars === null || isNaN(newStars)) return;
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            const req = store.get(username);
+            req.onsuccess = () => {
+                const u = req.result;
+                if (!u) return;
+                u.stars = parseInt(newStars);
+                store.put(u);
+                if (currentUser && currentUser.username === username) {
+                    currentUser.stars = u.stars;
+                    updateUserStarDisplay();
+                }
+                loadAdminUserDirectory();
+            };
+        }
+
+        // WALLPAPER & PFP
+        async function setWallpaperFromFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                applyWallpaper(evt.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setWallpaperFromUrl() {
+            const url = document.getElementById('wallpaperUrlInput').value.trim();
+            if (!url) return;
+            applyWallpaper(url);
+        }
+
+        function applyWallpaper(url) {
+            document.getElementById('desktopBgLayer').style.backgroundImage = `url('${url}')`;
+            localStorage.setItem('star_wallpaper', url);
+            triggerOsNotification("Wallpaper Updated", "Desktop background changed successfully.");
+        }
+
+        async function updateProfilePicture(fileInputId, urlInputId) {
+            let newAvatar = currentUser.avatar;
+            const fileInput = document.getElementById(fileInputId);
+            const urlInput = document.getElementById(urlInputId);
+            if (fileInput && fileInput.files.length > 0) {
+                newAvatar = await new Promise(r => {
+                    const rd = new FileReader();
+                    rd.onload = () => r(rd.result);
+                    rd.readAsDataURL(fileInput.files[0]);
+                });
+            } else if (urlInput && urlInput.value.trim()) {
+                newAvatar = urlInput.value.trim();
+            }
+            currentUser.avatar = newAvatar;
+            saveUserToDB(currentUser);
+            loginUser(currentUser);
+            triggerOsNotification("Profile Updated", "Profile picture updated successfully.");
+        }
+
+        // NOTIFICATIONS
+        function toggleDndMode() {
+            isDndActive = !isDndActive;
+            document.getElementById('dndTopBtn').style.color = isDndActive ? "#ef4444" : "#888";
+        }
+
+        function triggerOsNotification(title, body) {
+            if (isDndActive) return;
+            const container = document.getElementById('notificationToastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'os-toast';
+            toast.innerHTML = `
+                <i class="fa-solid fa-star" style="color:#f59e0b; margin-top:2px;"></i>
+                <div style="flex:1;">
+                    <span style="font-size:11px; font-weight:700; display:block; color:#fff;">${title}</span>
+                    <span style="font-size:10px; color:#aaa; display:block; margin-top:2px;">${body}</span>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 4000);
+        }
+
+        // SELECTION MARQUEE DRAG
+        let isDraggingMarquee = false;
+        let startX = 0, startY = 0;
+
+        function handleDesktopMouseDown(e) {
+            if (e.target.id !== 'desktopEnv' && e.target.id !== 'desktopAppGrid') return;
+            isDraggingMarquee = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const marquee = document.getElementById('selectionMarquee');
+            marquee.style.left = startX + 'px';
+            marquee.style.top = startY + 'px';
+            marquee.style.width = '0px';
+            marquee.style.height = '0px';
+            marquee.style.display = 'block';
+
+            document.onmousemove = (me) => {
+                if (!isDraggingMarquee) return;
+                const currentX = me.clientX;
+                const currentY = me.clientY;
+                const width = Math.abs(currentX - startX);
+                const height = Math.abs(currentY - startY);
+                const left = (currentX < startX ? currentX : startX);
+                const top = (currentY < startY ? currentY : startY);
+
+                marquee.style.width = width + 'px';
+                marquee.style.height = height + 'px';
+                marquee.style.left = left + 'px';
+                marquee.style.top = top + 'px';
+
+                const marqueeRect = { left, top, right: left + width, bottom: top + height };
+                document.querySelectorAll('.app-icon-btn').forEach(btn => {
+                    const r = btn.getBoundingClientRect();
+                    const isIntersect = !(r.right < marqueeRect.left || r.left > marqueeRect.right || r.bottom < marqueeRect.top || r.top > marqueeRect.bottom);
+                    if (isIntersect) btn.classList.add('selected');
+                    else btn.classList.remove('selected');
+                });
+            };
+
+            document.onmouseup = () => {
+                isDraggingMarquee = false;
+                marquee.style.display = 'none';
+                document.onmousemove = null;
+                document.onmouseup = null;
+            };
+        }
+
+        // CONTEXT MENU
+        function handleGlobalContextMenu(e) {
+            e.preventDefault();
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
+            menu.classList.remove('hidden');
+        }
+        function hideContextMenu() { document.getElementById('contextMenu').classList.add('hidden'); }
+        window.addEventListener('click', hideContextMenu);
+
+        // AUTHENTICATION
+        let isRegistering = false;
+        function toggleAuthMode() {
+            isRegistering = !isRegistering;
+            document.getElementById('authTitle').textContent = isRegistering ? "Create Account" : "Sign In to Star OS";
+            document.getElementById('authToggleBtn').textContent = isRegistering ? "Already have an account? Sign In" : "Need a new account? Create one";
+        }
+
         async function submitAuth() {
             const username = document.getElementById('authUsername').value.trim();
             const password = document.getElementById('authPassword').value.trim();
-            const avatar = document.getElementById('authAvatar').value.trim() || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
+            if (!username || !password) { alert('Please enter credentials.'); return; }
 
-            if (!username || !password) {
-                alert('Please fill out username and password.');
-                return;
-            }
+            let avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
+            const urlInput = document.getElementById('authPfpUrl').value.trim();
+            const fileInput = document.getElementById('authPfpFile');
 
+            if (fileInput.files.length > 0) {
+                avatar = await new Promise(r => {
+                    const rd = new FileReader();
+                    rd.onload = () => r(rd.result);
+                    rd.readAsDataURL(fileInput.files[0]);
+                });
+            } else if (urlInput) { avatar = urlInput; }
+
+            const starId = 'STAR(' + Math.floor(1000 + Math.random() * 9000) + ')';
             const db = await openUserDB();
+
             if (isRegistering) {
                 const tx = db.transaction('users', 'readwrite');
-                const store = tx.objectStore('users');
-                const checkReq = store.get(username);
-                checkReq.onsuccess = () => {
-                    if (checkReq.result) {
-                        alert('Username already exists!');
-                    } else {
-                        store.put({ username, password, avatar, partner: 'None' });
-                        tx.oncomplete = () => loginUser({ username, avatar, partner: 'None' });
-                    }
-                };
+                const newUser = { username, password, avatar, starId, partner: 'None', rank: 'user', stars: 100, storageLimit: 100, banned: false, studios: [] };
+                tx.objectStore('users').put(newUser);
+                tx.oncomplete = () => loginUser(newUser);
             } else {
                 const tx = db.transaction('users', 'readonly');
                 const req = tx.objectStore('users').get(username);
                 req.onsuccess = () => {
                     const user = req.result;
                     if (user && user.password === password) {
+                        if (user.banned) { alert('This account has been banned by an Admin.'); return; }
                         loginUser(user);
-                    } else {
-                        alert('Invalid username or password.');
-                    }
+                    } else alert('Invalid username or password.');
                 };
             }
         }
 
         function loginUser(user) {
             currentUser = user;
+            if (!currentUser.stars && currentUser.stars !== 0) currentUser.stars = 100;
+            if (!currentUser.rank) currentUser.rank = 'user';
+            if (!currentUser.storageLimit) currentUser.storageLimit = 100;
             localStorage.setItem('star_current_user', JSON.stringify(user));
+            
             if (window.firebaseApp && window.firebaseApp.auth) {
                 window.firebaseApp.signInAnonymously(window.firebaseApp.auth);
             }
-            document.getElementById('discordUserName').textContent = user.username;
+
+            document.getElementById('topUserTag').textContent = user.starId || 'STAR(1010)';
+            document.getElementById('discordUserName').innerHTML = user.username + ` <span class="rank-badge rank-${(user.rank||'user').toLowerCase()}">${user.rank||'user'}</span>`;
             document.getElementById('chatUserAvatar').src = user.avatar;
+            document.getElementById('discordUserPartner').textContent = 'Lover: ' + (user.partner || 'None');
             document.getElementById('settingsAvatar').src = user.avatar;
-            document.getElementById('userMailHandle').textContent = user.username.toLowerCase() + '@star';
             document.getElementById('settingsUserDisplay').textContent = user.username;
+            document.getElementById('settingsStarId').textContent = user.starId || 'STAR(1010)';
             document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('desktopEnv').classList.remove('opacity-0');
+            
+            updateUserStarDisplay();
             initFirebaseChat();
-            initFirebaseMail();
-            loadLocalApps();
-            loadGlobalApps();
-            loadFiles();
+            loadGlobalStoreApps();
             renderDesktopAppGrid();
+            renderChannelList();
+            loadStudiosHub();
+            browserNavigateHome();
+            checkIncomingLoverRequests();
         }
 
         function checkAuth() {
             const saved = localStorage.getItem('star_current_user');
-            if (saved) {
-                loginUser(JSON.parse(saved));
-            } else {
-                document.getElementById('authScreen').classList.remove('hidden');
-            }
+            if (saved) loginUser(JSON.parse(saved));
+            else document.getElementById('authScreen').classList.remove('hidden');
         }
 
         function handleSignOut() {
             localStorage.removeItem('star_current_user');
-            currentUser = null;
-            if (window.firebaseApp && window.firebaseApp.auth) {
-                window.firebaseApp.signOut(window.firebaseApp.auth);
-            }
             location.reload();
         }
 
-        function applyCustomAccentColor(color) {
-            document.documentElement.style.setProperty('--accent-color', color);
+        function updateUserStarDisplay() {
+            if (!currentUser) return;
+            const text = `${currentUser.stars || 0} Stars`;
+            document.getElementById('topStarBalanceText').textContent = text;
+            document.getElementById('bankBalanceDisplay').textContent = `${currentUser.stars || 0} 🌟`;
         }
 
-        function setWallpaperFromUrl() {
-            const url = document.getElementById('wallpaperUrlInput').value.trim();
-            if (!url) return;
-            const layer = document.getElementById('desktopBgLayer');
-            layer.className = '';
-            layer.style.backgroundImage = `url('${url}')`;
+        async function saveUserToDB(userObj) {
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readwrite');
+            tx.objectStore('users').put(userObj);
         }
 
-        function setWallpaperFromFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => {
-                const layer = document.getElementById('desktopBgLayer');
-                layer.className = '';
-                layer.style.backgroundImage = `url('${reader.result}')`;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function resetDefaultWallpaper() {
-            const layer = document.getElementById('desktopBgLayer');
-            layer.style.backgroundImage = 'none';
-            layer.className = 'default-aurora-bg';
-        }
-
-        // Window Management
+        // WINDOW MANAGEMENT
         let activeZ = 200;
         function openWindow(id) {
             const win = document.getElementById(id);
             if (!win) return;
             win.classList.remove('hidden');
             win.classList.remove('minimized');
+            win.classList.add('opening');
+            setTimeout(() => win.classList.remove('opening'), 300);
             win.style.zIndex = ++activeZ;
         }
         function closeWindow(id) {
             const win = document.getElementById(id);
-            if (win) { win.classList.add('hidden'); win.classList.remove('fullscreen'); }
+            if (win) {
+                win.classList.add('hidden');
+                if (win.classList.contains('fullscreen')) restoreFromFullscreen();
+            }
         }
         function minimizeWindow(id) {
             const win = document.getElementById(id);
@@ -658,8 +1506,16 @@
         function toggleFullscreen(id) {
             const win = document.getElementById(id);
             if (!win) return;
-            win.classList.toggle('fullscreen');
-            win.style.zIndex = ++activeZ;
+            const isFull = win.classList.toggle('fullscreen');
+            if (isFull) {
+                document.body.classList.add('fullscreen-active');
+                document.getElementById('fullscreenExitHeader').style.transform = "translateX(-50%) translateY(0)";
+            } else restoreFromFullscreen();
+        }
+        function restoreFromFullscreen() {
+            document.body.classList.remove('fullscreen-active');
+            document.getElementById('fullscreenExitHeader').style.transform = "translateX(-50%) translateY(-100%)";
+            document.querySelectorAll('.os-window.fullscreen').forEach(w => w.classList.remove('fullscreen'));
         }
         function toggleTaskbarApp(id) {
             const win = document.getElementById(id);
@@ -685,18 +1541,377 @@
         }
         function closeDragElement() { document.onmousemove = null; document.onmouseup = null; dragObj = null; }
 
-        // Browser Navigation
-        function navigateToUrl() {
-            const val = document.getElementById('urlInput').value.trim();
-            if (!val) return;
-            document.getElementById('pagePolarisHome').classList.add('hidden');
-            const iframe = document.getElementById('browserIframe');
-            iframe.classList.remove('hidden');
-            iframe.src = /^https?:\/\//i.test(val) ? val : 'https://' + val;
+        // STARBANK & TRANSFERS
+        async function sendStarTransfer() {
+            const recipientQuery = document.getElementById('bankTargetUserInput').value.trim();
+            const amount = parseInt(document.getElementById('bankAmountInput').value);
+            if (!recipientQuery || isNaN(amount) || amount <= 0) { alert('Invalid transfer details.'); return; }
+            if ((currentUser.stars || 0) < amount) { alert('Insufficient Stars balance!'); return; }
+
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            const req = store.getAll();
+
+            req.onsuccess = () => {
+                const users = req.result || [];
+                const target = users.find(u => u.username.toLowerCase() === recipientQuery.toLowerCase() || (u.starId && u.starId.toLowerCase() === recipientQuery.toLowerCase()));
+                if (!target) { alert('Recipient user not found.'); return; }
+                if (target.username === currentUser.username) { alert('Cannot transfer Stars to yourself.'); return; }
+
+                currentUser.stars -= amount;
+                target.stars = (target.stars || 0) + amount;
+
+                store.put(currentUser);
+                store.put(target);
+
+                saveTransactionRecord(currentUser.username, target.username, amount, 'Transfer');
+                updateUserStarDisplay();
+                document.getElementById('bankTargetUserInput').value = '';
+                document.getElementById('bankAmountInput').value = '';
+                triggerOsNotification("Star Transfer Sent", `Transferred ${amount} 🌟 to ${target.username}`);
+            };
         }
 
-        // Discord Chat
+        function saveTransactionRecord(sender, receiver, amount, type) {
+            if (!window.firebaseApp) return;
+            const { db, ref, push } = window.firebaseApp;
+            push(ref(db, 'bank/transactions'), { sender, receiver, amount, type, timestamp: Date.now() });
+            loadTransactionHistory();
+        }
+
+        function loadTransactionHistory() {
+            if (!window.firebaseApp) return;
+            const { db, ref, onValue } = window.firebaseApp;
+            onValue(ref(db, 'bank/transactions'), snapshot => {
+                const list = document.getElementById('starTransactionHistoryList');
+                if (!list) return;
+                list.innerHTML = '';
+                if (!snapshot.exists()) { list.innerHTML = '<div style="color:#666; font-size:11px;">No transaction records yet.</div>'; return; }
+                
+                snapshot.forEach(child => {
+                    const tx = child.val();
+                    const row = document.createElement('div');
+                    row.style.cssText = "padding:8px 10px; background:#14141d; border:1px solid #222; border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:11px;";
+                    row.innerHTML = `
+                        <div>
+                            <span style="font-weight:700; color:#fff;">${tx.sender} ➔ ${tx.receiver}</span>
+                            <span style="font-size:9px; color:#666; display:block;">${tx.type} • ${new Date(tx.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <span style="font-weight:800; color:#f59e0b;" class="mono">+${tx.amount} 🌟</span>
+                    `;
+                    list.appendChild(row);
+                });
+            });
+        }
+
+        // STAR+ AUTOMATED MARKET & COIN MAKER
+        function initStarPlusMarket() {
+            if (!window.firebaseApp) return;
+            const { db, ref, onValue } = window.firebaseApp;
+            onValue(ref(db, 'starplus/coins'), snapshot => {
+                const grid = document.getElementById('starPlusCoinsGrid');
+                if (!grid) return;
+                grid.innerHTML = '';
+                if (!snapshot.exists()) {
+                    grid.innerHTML = '<div style="color:#666; font-size:11px;">No custom coins minted yet. Be the first!</div>';
+                    return;
+                }
+                snapshot.forEach(child => {
+                    const coin = { id: child.key, ...child.val() };
+                    const card = document.createElement('div');
+                    card.style.cssText = "background:#13131c; border:1px solid #222; border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px;";
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:13px; font-weight:800; color:#fff;" class="mono">$${coin.ticker}</span>
+                            <span class="mono" style="font-size:12px; font-weight:700; color:#22c55e;">${coin.price} 🌟</span>
+                        </div>
+                        <span style="font-size:9px; color:#888;">Creator: ${coin.creator}</span>
+                        <div style="display:flex; gap:6px; margin-top:4px;">
+                            <button onclick="buyCoin('${coin.id}', ${coin.price})" class="btn-primary" style="background:#22c55e; color:#000; margin:0; padding:6px; font-size:10px;">Buy (10)</button>
+                            <button onclick="sellCoin('${coin.id}', ${coin.price})" class="btn-primary" style="background:#ef4444; color:#fff; margin:0; padding:6px; font-size:10px;">Sell (10)</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        function mintCustomCoin() {
+            const ticker = document.getElementById('mintCoinTicker').value.trim().toUpperCase();
+            const startPrice = parseInt(document.getElementById('mintCoinPrice')) || 10;
+            if (!ticker) { alert('Enter a coin ticker.'); return; }
+            if ((currentUser.stars || 0) < 50) { alert('Minting a coin costs 50 Stars fee!'); return; }
+
+            currentUser.stars -= 50;
+            updateUserStarDisplay();
+            saveUserToDB(currentUser);
+
+            const { db, ref, push } = window.firebaseApp;
+            push(ref(db, 'starplus/coins'), {
+                ticker, price: startPrice, creator: currentUser.username, timestamp: Date.now()
+            });
+
+            document.getElementById('mintCoinTicker').value = '';
+            triggerOsNotification("Coin Minted!", `Successfully launched $${ticker} on Star+ Market!`);
+        }
+
+        function buyCoin(coinId, price) {
+            const cost = price * 10;
+            if ((currentUser.stars || 0) < cost) { alert('Not enough stars!'); return; }
+            currentUser.stars -= cost;
+            updateUserStarDisplay();
+            saveUserToDB(currentUser);
+            triggerOsNotification("Star+ Trade", `Bought 10 shares for ${cost} 🌟`);
+        }
+
+        function sellCoin(coinId, price) {
+            const revenue = price * 10;
+            currentUser.stars = (currentUser.stars || 0) + revenue;
+            updateUserStarDisplay();
+            saveUserToDB(currentUser);
+            triggerOsNotification("Star+ Trade", `Sold 10 shares for ${revenue} 🌟`);
+        }
+
+        // DEVELOPER STUDIOS & PUBLIC STATS
+        async function createNewStudio() {
+            const name = document.getElementById('newStudioNameInput').value.trim();
+            if (!name) return;
+            const studio = {
+                id: 'studio_' + Date.now(),
+                name: name,
+                owner: currentUser.username,
+                members: [currentUser.username],
+                balance: 0,
+                earnings: 0
+            };
+
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            currentUser.studios = currentUser.studios || [];
+            currentUser.studios.push(studio);
+            store.put(currentUser);
+
+            if (window.firebaseApp) {
+                window.firebaseApp.set(window.firebaseApp.ref(window.firebaseApp.db, 'studios/' + studio.id), studio);
+            }
+
+            document.getElementById('newStudioNameInput').value = '';
+            loadStudiosHub();
+            triggerOsNotification("Studio Created", `Developer Studio '${name}' launched!`);
+        }
+
+        function loadStudiosHub() {
+            if (!window.firebaseApp) return;
+            const { db, ref, onValue } = window.firebaseApp;
+            onValue(ref(db, 'studios'), snapshot => {
+                const list = document.getElementById('publicStudiosList');
+                const select = document.getElementById('studioSelectOwner');
+                if (!list) return;
+                list.innerHTML = '';
+                if (select) select.innerHTML = '<option value="personal">Personal Account</option>';
+
+                if (!snapshot.exists()) {
+                    list.innerHTML = '<div style="color:#666; font-size:11px;">No public studios found.</div>';
+                    return;
+                }
+
+                snapshot.forEach(child => {
+                    const s = child.val();
+                    const btn = document.createElement('button');
+                    btn.style.cssText = "width:100%; text-align:left; padding:8px; background:#181824; border:1px solid #2a2a3a; border-radius:8px; color:#fff; font-size:11px; font-weight:700; cursor:pointer;";
+                    btn.onclick = () => renderStudioDetail(s);
+                    btn.innerHTML = `<i class="fa-solid fa-city" style="color:#3b82f6;"></i> ${s.name} <span style="float:right; color:#f59e0b;" class="mono">${s.balance || 0} 🌟</span>`;
+                    list.appendChild(btn);
+
+                    if (currentUser && currentUser.username === s.owner && select) {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = `Studio: ${s.name}`;
+                        select.appendChild(opt);
+                    }
+                });
+            });
+        }
+
+        function renderStudioDetail(studio) {
+            const container = document.getElementById('studioDetailContainer');
+            container.innerHTML = `
+                <div style="background:#14141e; border:1px solid #262636; border-radius:12px; padding:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h2 style="font-size:18px; font-weight:800; color:#fff;">${studio.name}</h2>
+                            <span style="font-size:10px; color:#888;">Owner: ${studio.owner} • Public Stats Hub</span>
+                        </div>
+                        <span class="mono" style="font-size:14px; font-weight:800; color:#f59e0b;">${studio.balance || 0} 🌟 Studio Funds</span>
+                    </div>
+                </div>
+
+                <div style="background:#14141e; border:1px solid #262636; border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:10px;">
+                    <span style="font-size:12px; font-weight:700; color:#fff;">Deposit Stars into Studio</span>
+                    <div style="display:flex; gap:6px;">
+                        <input type="number" id="depositStudioAmount" placeholder="Amount of Stars..." class="form-input" style="margin:0;">
+                        <button onclick="depositToStudio('${studio.id}')" style="padding:0 14px; border-radius:8px; background:#f59e0b; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;">Deposit</button>
+                    </div>
+                </div>
+
+                <div style="background:#14141e; border:1px solid #262636; border-radius:12px; padding:16px;">
+                    <span style="font-size:12px; font-weight:700; color:#fff; display:block; margin-bottom:8px;">Studio Dev Team</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${(studio.members || []).map(m => `<span style="padding:4px 10px; border-radius:6px; background:#222; border:1px solid #333; font-size:10px; color:#aaa;">${m}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function depositToStudio(studioId) {
+            const amt = parseInt(document.getElementById('depositStudioAmount').value);
+            if (isNaN(amt) || amt <= 0) { alert('Enter valid amount.'); return; }
+            if ((currentUser.stars || 0) < amt) { alert('Insufficient Stars!'); return; }
+
+            currentUser.stars -= amt;
+            updateUserStarDisplay();
+            saveUserToDB(currentUser);
+
+            if (window.firebaseApp) {
+                const { db, ref, get, update } = window.firebaseApp;
+                const sRef = ref(db, 'studios/' + studioId);
+                const snap = await get(sRef);
+                if (snap.exists()) {
+                    const s = snap.val();
+                    s.balance = (s.balance || 0) + amt;
+                    update(ref(db, 'studios'), { [studioId]: s });
+                    renderStudioDetail(s);
+                }
+            }
+            triggerOsNotification("Deposit Successful", `Deposited ${amt} 🌟 into studio funds.`);
+        }
+
+        // DISCORD & LOVER REQUESTS WITH ACCEPT/DENY
         let activeChannel = 'general';
+        let serverListCache = [
+            { id: 'general', name: 'general-chat' },
+            { id: 'dev', name: 'dev-lounge' }
+        ];
+
+        function renderChannelList() {
+            const list = document.getElementById('discordChannelList');
+            if (!list) return;
+            list.innerHTML = '';
+            serverListCache.forEach(s => {
+                const btn = document.createElement('button');
+                btn.style.cssText = `width:100%; text-align:left; padding:7px 8px; border-radius:6px; font-weight:600; font-size:11px; border:none; cursor:pointer; display:flex; align-items:center; gap:6px; background:${activeChannel===s.id?'#22222c':'transparent'}; color:${activeChannel===s.id?'#fff':'#888'};`;
+                btn.onclick = () => { activeChannel = s.id; document.getElementById('activeChannelTitle').innerHTML = '<i class="fa-brands fa-discord"></i> # ' + s.name; initFirebaseChat(); renderChannelList(); };
+                btn.innerHTML = `<i class="fa-solid fa-hashtag" style="font-size:9px;"></i> ${s.name}`;
+                list.appendChild(btn);
+            });
+        }
+
+        function createNewChannel() {
+            const name = prompt("Enter new text channel name:");
+            if (!name) return;
+            const id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            serverListCache.push({ id, name: id });
+            renderChannelList();
+        }
+
+        function openUserProfileModal(username, avatar, partner, starId, rank) {
+            targetModalUser = { username, avatar, partner, starId, rank };
+            document.getElementById('modalUserAvatar').src = avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
+            document.getElementById('modalUserName').innerHTML = username + ` <span class="rank-badge rank-${(rank||'user').toLowerCase()}">${rank||'user'}</span>`;
+            document.getElementById('modalStarId').textContent = starId || 'STAR(1010)';
+            document.getElementById('modalUserPartner').textContent = 'Lover: ' + (partner || 'None');
+            
+            const btn = document.getElementById('sendLoverRequestBtn');
+            if (partner && partner !== 'None') {
+                btn.disabled = true;
+                btn.style.opacity = "0.5";
+                btn.innerHTML = `<i class="fa-solid fa-lock"></i> Already Committed (${partner})`;
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.innerHTML = `<i class="fa-solid fa-heart" style="color:#ef4444;"></i> Send Lover Connection Request`;
+            }
+
+            document.getElementById('userProfileModal').classList.remove('hidden');
+        }
+
+        function closeUserProfileModal() { document.getElementById('userProfileModal').classList.add('hidden'); }
+
+        function sendPartnerRequest() {
+            if (!targetModalUser || !currentUser) return;
+            if (window.firebaseApp) {
+                const { db, ref, set } = window.firebaseApp;
+                set(ref(db, 'lovers/' + targetModalUser.username), {
+                    from: currentUser.username,
+                    timestamp: Date.now()
+                });
+            }
+            closeUserProfileModal();
+            triggerOsNotification("Lover Request Sent", `Sent connection invite to ${targetModalUser.username}`);
+        }
+
+        function checkIncomingLoverRequests() {
+            if (!window.firebaseApp || !currentUser) return;
+            const { db, ref, onValue } = window.firebaseApp;
+            onValue(ref(db, 'lovers/' + currentUser.username), snapshot => {
+                if (snapshot.exists()) {
+                    pendingLoverRequest = snapshot.val();
+                    document.getElementById('loverRequestText').textContent = `${pendingLoverRequest.from} wants to be your lover!`;
+                    document.getElementById('loverRequestModal').classList.remove('hidden');
+                }
+            });
+        }
+
+        async function acceptLoverRequest() {
+            if (!pendingLoverRequest || !currentUser) return;
+            const partnerName = pendingLoverRequest.from;
+            currentUser.partner = partnerName;
+            saveUserToDB(currentUser);
+
+            const db = await openUserDB();
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            const req = store.get(partnerName);
+            req.onsuccess = () => {
+                const p = req.result;
+                if (p) {
+                    p.partner = currentUser.username;
+                    store.put(p);
+                }
+            };
+
+            if (window.firebaseApp) {
+                window.firebaseApp.remove(window.firebaseApp.ref(window.firebaseApp.db, 'lovers/' + currentUser.username));
+            }
+
+            document.getElementById('discordUserPartner').textContent = 'Lover: ' + currentUser.partner;
+            document.getElementById('loverRequestModal').classList.add('hidden');
+            triggerOsNotification("Lover Connected!", `You and ${partnerName} are now officially partners!`);
+        }
+
+        function denyLoverRequest() {
+            if (window.firebaseApp && currentUser) {
+                window.firebaseApp.remove(window.firebaseApp.ref(window.firebaseApp.db, 'lovers/' + currentUser.username));
+            }
+            document.getElementById('loverRequestModal').classList.add('hidden');
+            triggerOsNotification("Request Denied", "Lover request declined.");
+        }
+
+        function startDirectMessage() {
+            if (!targetModalUser || !currentUser) return;
+            const dmChan = ['dm', currentUser.username, targetModalUser.username].sort().join('_');
+            if (!serverListCache.find(s => s.id === dmChan)) {
+                serverListCache.push({ id: dmChan, name: 'dm-' + targetModalUser.username });
+            }
+            activeChannel = dmChan;
+            document.getElementById('activeChannelTitle').innerHTML = '<i class="fa-solid fa-message"></i> DM: ' + targetModalUser.username;
+            renderChannelList();
+            initFirebaseChat();
+            closeUserProfileModal();
+        }
+
         function initFirebaseChat() {
             if (!window.firebaseApp) return;
             const { db, ref, onValue } = window.firebaseApp;
@@ -704,30 +1919,29 @@
                 const list = document.getElementById('chatMessagesList');
                 if (!list) return;
                 list.innerHTML = '';
-                if (!snapshot.exists()) { list.innerHTML = '<div class="text-slate-500 text-center py-6">No messages in #' + activeChannel + ' yet.</div>'; return; }
+                if (!snapshot.exists()) { list.innerHTML = '<div style="color:#666; text-align:center; padding:20px; font-size:11px;">No messages in #' + activeChannel + ' yet.</div>'; return; }
+                
                 snapshot.forEach(child => {
                     const msg = child.val();
                     const div = document.createElement('div');
-                    div.className = "flex items-start gap-3 bg-[#2b2d31]/50 p-3 rounded-lg border border-[#1f2023]";
-                    let attachHtml = msg.attachment ? `<div class="mt-2 text-xs"><a href="${msg.attachment}" download="attached_file" class="text-sky-400 underline font-bold">Download Attachment ↗</a></div>` : '';
+                    div.style.cssText = "display:flex; gap:10px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:6px;";
                     
-                    const avatarImg = document.createElement('img');
-                    avatarImg.src = msg.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80';
-                    avatarImg.className = 'w-8 h-8 rounded-full object-cover shrink-0';
+                    let mediaHtml = '';
+                    if (msg.photo) mediaHtml = `<div style="margin-top:4px;"><img src="${msg.photo}" style="max-width:220px; border-radius:6px; border:1px solid #333;"></div>`;
+                    if (msg.voice) mediaHtml = `<div style="margin-top:4px;"><audio controls src="${msg.voice}" style="height:28px;"></audio></div>`;
 
-                    const textWrap = document.createElement('div');
-                    textWrap.className = 'flex-1 min-w-0';
-                    textWrap.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-white text-xs">${msg.sender}</span>
-                            <span class="text-[10px] text-slate-500 font-normal ml-auto">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+                    div.innerHTML = `
+                        <img src="${msg.avatar || ''}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; cursor:pointer;" onclick="openUserProfileModal('${msg.sender}', '${msg.avatar}', '${msg.partner || 'None'}', '${msg.starId || 'STAR(1010)'}', '${msg.rank || 'user'}')">
+                        <div style="flex:1; overflow:hidden;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:11px; font-weight:700; color:#fff; cursor:pointer;" onclick="openUserProfileModal('${msg.sender}', '${msg.avatar}', '${msg.partner || 'None'}', '${msg.starId || 'STAR(1010)'}', '${msg.rank || 'user'}')">${msg.sender} <span class="rank-badge rank-${(msg.rank||'user').toLowerCase()}">${msg.rank||'user'}</span></span>
+                                <span class="mono" style="font-size:9px; color:#666;">${msg.starId || 'STAR(1010)'}</span>
+                                <span style="font-size:9px; color:#666; margin-left:auto;">${new Date(msg.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
+                            </div>
+                            <div style="font-size:11px; color:#ccc; margin-top:2px; word-break:break-word;">${msg.text || ''}</div>
+                            ${mediaHtml}
                         </div>
-                        <div class="text-slate-300 text-xs mt-0.5">${msg.text || ''}</div>
-                        ${attachHtml}
                     `;
-
-                    div.appendChild(avatarImg);
-                    div.appendChild(textWrap);
                     list.appendChild(div);
                 });
                 list.scrollTop = list.scrollHeight;
@@ -735,376 +1949,339 @@
         }
 
         function sendChatMessage() {
+            if (isGlobalChatMuted) { alert('Chat is muted by Admin.'); return; }
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text || !window.firebaseApp || !currentUser) return;
             const { db, ref, push } = window.firebaseApp;
-            push(ref(db, 'chat/' + activeChannel), { sender: currentUser.username, avatar: currentUser.avatar, text, timestamp: Date.now() });
+            push(ref(db, 'chat/' + activeChannel), { sender: currentUser.username, starId: currentUser.starId || 'STAR(1010)', rank: currentUser.rank || 'user', avatar: currentUser.avatar, partner: currentUser.partner || 'None', text, timestamp: Date.now() });
             input.value = '';
         }
 
-        function sendChatMessageWithAttachment(e) {
-            const file = e.target.files[0];
-            if (!file || !window.firebaseApp || !currentUser) return;
-            if (file.size > 250 * 1024 * 1024) { alert('Attachment exceeds 250MB limit.'); return; }
-            const reader = new FileReader();
-            reader.onload = () => {
-                const { db, ref, push } = window.firebaseApp;
-                push(ref(db, 'chat/' + activeChannel), { sender: currentUser.username, avatar: currentUser.avatar, text: `Attached file: ${file.name}`, attachment: reader.result, timestamp: Date.now() });
-            };
-            reader.readAsDataURL(file);
+        async function startCameraStream() {
+            try {
+                cameraStreamObj = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('cameraStreamVideo').srcObject = cameraStreamObj;
+                document.getElementById('cameraPreviewArea').style.display = 'flex';
+            } catch (err) { alert('Camera unavailable.'); }
         }
 
-        // Mail
-        let activeMailTab = 'inbox';
-        function switchMailTab(tab) { activeMailTab = tab; loadFirebaseMail(); }
-        function showComposeMail() { document.getElementById('mailComposePane').classList.remove('hidden'); }
-        function hideComposeMail() { document.getElementById('mailComposePane').classList.add('hidden'); }
-        function sendMail() {
-            const recipient = document.getElementById('mailRecipient').value.trim();
-            const subject = document.getElementById('mailSubject').value.trim();
-            const body = document.getElementById('mailBody').value.trim();
-            if (!recipient || !subject || !body || !window.firebaseApp || !currentUser) return;
+        function closeCameraStream() {
+            if (cameraStreamObj) cameraStreamObj.getTracks().forEach(t => t.stop());
+            document.getElementById('cameraPreviewArea').style.display = 'none';
+        }
+
+        function captureCameraPhoto() {
+            const video = document.getElementById('cameraStreamVideo');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 240;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const dataUrl = canvas.toDataURL('image/png');
+            closeCameraStream();
+
             const { db, ref, push } = window.firebaseApp;
-            push(ref(db, 'mails'), { sender: currentUser.username.toLowerCase() + '@star', recipient: recipient.toLowerCase(), subject, body, timestamp: Date.now() });
-            hideComposeMail();
-            alert('Mail sent!');
-        }
-        function initFirebaseMail() { loadFirebaseMail(); }
-        function loadFirebaseMail() {
-            if (!window.firebaseApp || !currentUser) return;
-            const { db, ref, onValue } = window.firebaseApp;
-            const myHandle = currentUser.username.toLowerCase() + '@star';
-            onValue(ref(db, 'mails'), snapshot => {
-                const list = document.getElementById('mailListPane');
-                if (!list) return;
-                list.innerHTML = '';
-                let count = 0;
-                if (!snapshot.exists()) { list.innerHTML = '<div class="text-center py-6 text-slate-500">No mail.</div>'; return; }
-                snapshot.forEach(child => {
-                    const m = child.val();
-                    if ((activeMailTab === 'inbox' && m.recipient === myHandle) || (activeMailTab === 'sent' && m.sender === myHandle)) {
-                        count++;
-                        const item = document.createElement('div');
-                        item.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer";
-                        item.innerHTML = `<div class="font-bold text-sky-400 text-xs">${activeMailTab === 'inbox' ? m.sender : m.recipient}</div><div class="font-semibold text-white text-xs truncate">${m.subject}</div>`;
-                        item.onclick = () => { document.getElementById('mailDetailPane').innerHTML = `<h3 class="font-bold text-white text-base mb-2">${m.subject}</h3><p class="text-slate-300 text-xs">${m.body}</p>`; };
-                        list.appendChild(item);
-                    }
-                });
-                document.getElementById('mailBadge').textContent = count;
-            });
+            push(ref(db, 'chat/' + activeChannel), { sender: currentUser.username, starId: currentUser.starId || 'STAR(1010)', rank: currentUser.rank || 'user', avatar: currentUser.avatar, text: 'Photo:', photo: dataUrl, timestamp: Date.now() });
         }
 
-        // APP PUBLISHING, EXECUTION & FILE SYSTEM ENGINE
-        const MAX_UPLOAD_SIZE = 250 * 1024 * 1024;
-
-        function openAppDB() {
-            return new Promise((res, rej) => {
-                const req = indexedDB.open('star_apps_db', 1);
-                req.onupgradeneeded = e => e.target.result.createObjectStore('apps', { keyPath: 'id' });
-                req.onsuccess = e => res(e.target.result);
-                req.onerror = e => rej(e.target.error);
-            });
-        }
-
-        async function renderDesktopAppGrid() {
-            const grid = document.getElementById('desktopAppGrid');
-            const db = await openAppDB();
-            const tx = db.transaction('apps', 'readonly');
-            const req = tx.objectStore('apps').getAll();
-            req.onsuccess = () => {
-                const customApps = (req.result || []).filter(a => a.onDesktop);
-                const customButtons = customApps.map(app => `
-                    <button onclick="launchAppById('${app.id}')" class="w-20 flex flex-col items-center gap-2 group">
-                        <div class="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-sky-400"><i data-lucide="play" class="w-7 h-7"></i></div>
-                        <span class="text-xs font-semibold text-slate-200 drop-shadow truncate w-full text-center">${app.name}</span>
-                    </button>
-                `).join('');
-                
-                grid.innerHTML = `
-                    <button onclick="openWindow('chatWindow')" class="w-20 flex flex-col items-center gap-2 group">
-                        <div class="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-purple-400"><i data-lucide="message-square" class="w-7 h-7"></i></div>
-                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Discord</span>
-                    </button>
-                    <button onclick="openWindow('storeWindow')" class="w-20 flex flex-col items-center gap-2 group">
-                        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-amber-400"><i data-lucide="store" class="w-7 h-7"></i></div>
-                        <span class="text-xs font-semibold text-slate-200 drop-shadow">App Store</span>
-                    </button>
-                    <button onclick="openWindow('filesWindow')" class="w-20 flex flex-col items-center gap-2 group">
-                        <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-cyan-300"><i data-lucide="folder-open" class="w-7 h-7"></i></div>
-                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Files</span>
-                    </button>
-                    <button onclick="openWindow('mailWindow')" class="w-20 flex flex-col items-center gap-2 group">
-                        <div class="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-indigo-400"><i data-lucide="mail" class="w-7 h-7"></i></div>
-                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Outlook</span>
-                    </button>
-                    <button onclick="openWindow('browserWindow')" class="w-20 flex flex-col items-center gap-2 group">
-                        <div class="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-sky-400"><i data-lucide="globe" class="w-7 h-7"></i></div>
-                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Browser</span>
-                    </button>
-                    <button onclick="openWindow('settingsWindow')" class="w-20 flex flex-col items-center gap-2 group">
-                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 group-hover:scale-105 transition shadow-lg flex items-center justify-center text-emerald-400"><i data-lucide="settings" class="w-7 h-7"></i></div>
-                        <span class="text-xs font-semibold text-slate-200 drop-shadow">Settings</span>
-                    </button>
-                    ${customButtons}
-                `;
-                lucide.createIcons();
-            };
-        }
-
-        async function launchAppById(id) {
-            const db = await openAppDB();
-            const tx = db.transaction('apps', 'readonly');
-            const req = tx.objectStore('apps').get(id);
-            req.onsuccess = () => {
-                const app = req.result;
-                if (app) executeTargetContent(app.content, app.name, app.isUrl);
-            };
-        }
-
-        function executeTargetContent(content, title = 'App Sandbox', isUrl = false) {
-            if (isUrl) {
-                if (appExecMode === 'newtab') {
-                    window.open(content, '_blank');
-                } else {
-                    document.getElementById('appRunnerTitle').textContent = title;
-                    const iframe = document.getElementById('appRunnerIframe');
-                    openWindow('appRunnerWindow');
-                    iframe.src = content;
-                }
+        async function toggleVoiceRecording() {
+            const btn = document.getElementById('voiceRecBtn');
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                btn.style.color = '#888';
             } else {
-                const blob = new Blob([content], { type: 'text/html' });
-                const blobUrl = URL.createObjectURL(blob);
-                if (appExecMode === 'newtab') {
-                    window.open(blobUrl, '_blank');
-                } else {
-                    document.getElementById('appRunnerTitle').textContent = title;
-                    const iframe = document.getElementById('appRunnerIframe');
-                    openWindow('appRunnerWindow');
-                    iframe.src = blobUrl;
-                }
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const { db, ref, push } = window.firebaseApp;
+                            push(ref(db, 'chat/' + activeChannel), { sender: currentUser.username, starId: currentUser.starId || 'STAR(1010)', rank: currentUser.rank || 'user', avatar: currentUser.avatar, text: 'Voice note:', voice: reader.result, timestamp: Date.now() });
+                        };
+                        reader.readAsDataURL(blob);
+                    };
+                    mediaRecorder.start();
+                    btn.style.color = '#ef4444';
+                } catch (err) { alert('Microphone unavailable.'); }
             }
         }
 
-        async function publishWebUrl() {
-            const title = document.getElementById('pubWebTitle').value.trim();
-            const url = document.getElementById('pubWebUrl').value.trim();
-            if (!title || !url) { alert('Enter title and URL.'); return; }
-            if (!window.firebaseApp || !currentUser) return;
+        // STORE & PROXY ENGINE
+        function switchStoreTab(cat) {
+            activeStoreTab = cat;
+            document.getElementById('storeTabApps').style.background = cat === 'apps' ? '#fff' : '#222';
+            document.getElementById('storeTabApps').style.color = cat === 'apps' ? '#000' : '#aaa';
+            document.getElementById('storeTabProxies').style.background = cat === 'proxies' ? '#fff' : '#222';
+            document.getElementById('storeTabProxies').style.color = cat === 'proxies' ? '#000' : '#aaa';
+            document.getElementById('storeTabMods').style.background = cat === 'mods' ? '#fff' : '#222';
+            document.getElementById('storeTabMods').style.color = cat === 'mods' ? '#000' : '#aaa';
+
+            const labels = { apps: "Normal Applications & Games", proxies: "In-Browser Proxy Routes", mods: "Admin OS Themes & Custom Mods" };
+            document.getElementById('activeStoreCategoryLabel').textContent = labels[cat];
+            loadGlobalStoreApps();
+        }
+
+        function runStudioPreview() {
+            const code = document.getElementById('studioCodeEditor').value;
+            executeTargetContent(code, 'Studio Live Preview', false);
+        }
+
+        async function publishStudioApp() {
+            if (isGlobalUploadMuted) { alert('Uploads locked by Admin.'); return; }
+            const title = document.getElementById('studioAppTitle').value.trim();
+            const category = document.getElementById('studioCategorySelect').value;
+            const price = parseInt(document.getElementById('studioPriceInput').value) || 0;
+            const ownerType = document.getElementById('studioSelectOwner').value;
+            const code = document.getElementById('studioCodeEditor').value;
+
+            if (!title || !code) { alert('Fill in all app details.'); return; }
+
             const { db: fdb, ref, push } = window.firebaseApp;
-            push(ref(fdb, 'store/apps'), {
-                name: title,
-                content: url,
-                isUrl: true,
-                size: 0,
-                uploader: currentUser.username,
-                timestamp: Date.now()
+            push(ref(fdb, 'store/items'), {
+                name: title, category: category, price: price, content: code,
+                uploader: currentUser.username, ownerType: ownerType, timestamp: Date.now()
             });
-            document.getElementById('pubWebTitle').value = '';
-            document.getElementById('pubWebUrl').value = '';
-            alert(`Website "${title}" published globally!`);
+
+            document.getElementById('studioAppTitle').value = '';
+            triggerOsNotification("Published!", `${title} published to Community Store!`);
+            loadGlobalStoreApps();
         }
 
-        async function toggleDesktopShortcut(id) {
-            const db = await openAppDB();
-            const tx = db.transaction('apps', 'readwrite');
-            const store = tx.objectStore('apps');
-            const req = store.get(id);
-            req.onsuccess = () => {
-                const app = req.result;
-                if (app) {
-                    app.onDesktop = !app.onDesktop;
-                    store.put(app);
-                    tx.oncomplete = () => {
-                        loadLocalApps();
-                        renderDesktopAppGrid();
-                    };
-                }
-            };
-        }
-
-        async function loadLocalApps() {
-            const db = await openAppDB();
-            const tx = db.transaction('apps', 'readonly');
-            const req = tx.objectStore('apps').getAll();
-            req.onsuccess = () => {
-                const list = document.getElementById('localAppsList');
-                list.innerHTML = '';
-                const apps = req.result || [];
-                if (!apps.length) { list.innerHTML = '<div class="text-slate-500 text-xs">No local apps imported.</div>'; return; }
-                apps.forEach(app => {
-                    const card = document.createElement('div');
-                    card.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center";
-                    const pinLabel = app.onDesktop ? 'Remove Shortcut' : 'Pin to Desktop';
-                    card.innerHTML = `
-                        <div>
-                            <div class="font-bold text-white text-xs">${app.name}</div>
-                            <div class="text-[10px] text-slate-400">${app.isUrl ? 'Web URL' : (app.size/(1024*1024)).toFixed(2) + ' MB'}</div>
-                        </div>
-                        <div class="flex gap-1.5">
-                            <button onclick="launchAppById('${app.id}')" class="px-2 py-1 rounded bg-sky-500 text-slate-950 font-bold text-[10px]">Run</button>
-                            <button onclick="publishAppToGlobal('${app.id}')" class="px-2 py-1 rounded bg-amber-500 text-slate-950 font-bold text-[10px]">Publish</button>
-                            <button onclick="toggleDesktopShortcut('${app.id}')" class="px-2 py-1 rounded bg-slate-800 text-sky-300 font-bold text-[10px]">${pinLabel}</button>
-                            <button onclick="deleteLocalApp('${app.id}')" class="px-2 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-[10px]">Delete</button>
-                        </div>
-                    `;
-                    list.appendChild(card);
-                });
-            };
-        }
-
-        async function publishAppToGlobal(id) {
-            const db = await openAppDB();
-            const tx = db.transaction('apps', 'readonly');
-            const req = tx.objectStore('apps').get(id);
-            req.onsuccess = () => {
-                const app = req.result;
-                if (!app || !window.firebaseApp || !currentUser) return;
-                const { db: fdb, ref, push } = window.firebaseApp;
-                push(ref(fdb, 'store/apps'), {
-                    name: app.name,
-                    content: app.content,
-                    isUrl: app.isUrl || false,
-                    size: app.size || 0,
-                    uploader: currentUser.username,
-                    timestamp: Date.now()
-                });
-                alert(`App "${app.name}" published globally!`);
-            };
-        }
-
-        async function importAppFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            if (file.size > MAX_UPLOAD_SIZE) { alert('File exceeds 250MB limit.'); return; }
-            const content = await file.text();
-            const db = await openAppDB();
-            const tx = db.transaction('apps', 'readwrite');
-            tx.objectStore('apps').put({ id: 'app_' + Date.now(), name: file.name.replace(/\.html?$/i, ''), content, size: file.size, isUrl: false, onDesktop: true });
-            tx.oncomplete = () => {
-                loadLocalApps();
-                renderDesktopAppGrid();
-            };
-        }
-
-        async function deleteLocalApp(id) {
-            const db = await openAppDB();
-            const tx = db.transaction('apps', 'readwrite');
-            tx.objectStore('apps').delete(id);
-            tx.oncomplete = () => {
-                loadLocalApps();
-                renderDesktopAppGrid();
-            };
-        }
-
-        function loadGlobalApps() {
+        function loadGlobalStoreApps() {
             if (!window.firebaseApp) return;
             const { db, ref, onValue } = window.firebaseApp;
-            const searchVal = (document.getElementById('searchGlobalAppsInput')?.value || '').toLowerCase();
-
-            onValue(ref(db, 'store/apps'), snapshot => {
-                const list = document.getElementById('globalAppsList');
-                if (!list) return;
-                list.innerHTML = '';
-                if (!snapshot.exists()) { list.innerHTML = '<div class="text-slate-500 text-xs">No community apps published.</div>'; return; }
+            onValue(ref(db, 'store/items'), snapshot => {
+                const grid = document.getElementById('globalStoreAppsGrid');
+                if (!grid) return;
+                grid.innerHTML = '';
+                if (!snapshot.exists()) { grid.innerHTML = '<div style="color:#666; font-size:11px;">No published items in this category yet.</div>'; return; }
                 
                 snapshot.forEach(child => {
-                    const app = { id: child.key, ...child.val() };
-                    if (searchVal && !app.name.toLowerCase().includes(searchVal)) return;
+                    const item = { id: child.key, ...child.val() };
+                    if (item.category !== activeStoreTab) return;
 
                     const card = document.createElement('div');
-                    card.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center";
-                    const isOwner = currentUser && app.uploader === currentUser.username;
-                    const deleteBtn = isOwner ? `<button onclick="deleteGlobalApp('${app.id}')" class="px-2 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-[10px]">Unpublish</button>` : '';
+                    card.style.cssText = "background:#14141a; border:1px solid #222; border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px;";
+                    const priceTag = item.price > 0 ? `<span style="color:#f59e0b; font-weight:800;" class="mono">${item.price} 🌟</span>` : '<span style="color:#22c55e; font-weight:800;">FREE</span>';
 
                     card.innerHTML = `
-                        <div>
-                            <div class="font-bold text-white text-xs">${app.name}</div>
-                            <div class="text-[10px] text-slate-400">By ${app.uploader}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div style="width:36px; height:36px; border-radius:8px; background:#222; display:flex; align-items:center; justify-content:center; border:1px solid #333;"><i class="fa-solid fa-cube" style="color:#fff;"></i></div>
+                                <div>
+                                    <span style="font-size:12px; font-weight:700; display:block; color:#fff;">${item.name}</span>
+                                    <span style="font-size:9px; color:#777;">By ${item.uploader}</span>
+                                </div>
+                            </div>
+                            ${priceTag}
                         </div>
-                        <div class="flex gap-1.5">
-                            <button onclick="executeTargetContent('${encodeURIComponent(app.content)}', '${app.name}', ${app.isUrl || false})" class="px-2.5 py-1 rounded bg-amber-500 text-slate-950 font-bold text-[10px]">Run</button>
-                            ${deleteBtn}
-                        </div>
+                        <button onclick="buyAndRunItem('${item.id}', '${encodeURIComponent(item.content)}', '${item.name}', ${item.price}, '${item.uploader}', '${item.category}')" style="width:100%; padding:7px; border-radius:8px; background:#fff; color:#000; font-weight:700; font-size:10px; border:none; cursor:pointer;"><i class="fa-solid fa-play"></i> Run / Install</button>
                     `;
-                    list.appendChild(card);
+                    grid.appendChild(card);
                 });
             });
         }
 
-        async function deleteGlobalApp(id) {
-            if (!window.firebaseApp || !confirm("Unpublish this app from the public store?")) return;
-            const { db, ref, remove } = window.firebaseApp;
-            await remove(ref(db, 'store/apps/' + id));
-            loadGlobalApps();
+        async function buyAndRunItem(itemId, encodedContent, title, price, uploader, category) {
+            const content = decodeURIComponent(encodedContent);
+            if (price > 0 && uploader !== currentUser.username) {
+                if ((currentUser.stars || 0) < price) { alert('Insufficient Stars balance to buy this app!'); return; }
+                currentUser.stars -= price;
+                saveUserToDB(currentUser);
+                updateUserStarDisplay();
+
+                const db = await openUserDB();
+                const tx = db.transaction('users', 'readwrite');
+                const store = tx.objectStore('users');
+                const req = store.get(uploader);
+                req.onsuccess = () => {
+                    const creator = req.result;
+                    if (creator) {
+                        creator.stars = (creator.stars || 0) + price;
+                        store.put(creator);
+                    }
+                };
+                saveTransactionRecord(currentUser.username, uploader, price, `App Purchase: ${title}`);
+                triggerOsNotification("App Purchased!", `Spent ${price} 🌟 on ${title}`);
+            }
+
+            if (category === 'proxies') {
+                const route = 'proxy://' + title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                customProxyRoutes[route] = content;
+                document.getElementById('browserAddressBar').value = route;
+                openWindow('browserWindow');
+                navigateBrowserUrl();
+                triggerOsNotification("Proxy Registered", `Mapped route ${route}`);
+            } else if (category === 'mods') {
+                window.StarOS.injectCss(content);
+            } else {
+                executeTargetContent(content, title, false);
+            }
         }
 
-        // File Manager
+        // DESKTOP GRID RENDERING
+        function renderDesktopAppGrid() {
+            const grid = document.getElementById('desktopAppGrid');
+            grid.innerHTML = `
+                <button onclick="openWindow('starBankWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-solid fa-wallet" style="color:#f59e0b;"></i></div><span class="app-icon-label">StarBank</span></button>
+                <button onclick="openWindow('starPlusWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-solid fa-chart-line" style="color:#22c55e;"></i></div><span class="app-icon-label">Star+ Market</span></button>
+                <button onclick="openWindow('chatWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-brands fa-discord"></i></div><span class="app-icon-label">Discord</span></button>
+                <button onclick="openWindow('appStudioWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-solid fa-code"></i></div><span class="app-icon-label">App Studio</span></button>
+                <button onclick="openWindow('studiosWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-solid fa-city" style="color:#3b82f6;"></i></div><span class="app-icon-label">Studios Hub</span></button>
+                <button onclick="openWindow('storeWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-solid fa-store" style="color:#f59e0b;"></i></div><span class="app-icon-label">App Store</span></button>
+                <button onclick="openWindow('browserWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-solid fa-globe" style="color:#3b82f6;"></i></div><span class="app-icon-label">Browser</span></button>
+                <button onclick="openWindow('filesWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-solid fa-folder"></i></div><span class="app-icon-label">Files</span></button>
+                <button onclick="openWindow('settingsWindow')" class="app-icon-btn"><div class="app-icon-box"><i class="fa-solid fa-gear"></i></div><span class="app-icon-label">Settings</span></button>
+            `;
+        }
+
+        function executeTargetContent(content, title = 'App Sandbox', isUrl = false) {
+            document.getElementById('appRunnerTitle').textContent = title;
+            const iframe = document.getElementById('appRunnerIframe');
+            openWindow('appRunnerWindow');
+            if (isUrl) iframe.src = content;
+            else {
+                const blob = new Blob([content], { type: 'text/html' });
+                iframe.src = URL.createObjectURL(blob);
+            }
+        }
+
+        // BROWSER NAVIGATION & PROXY
+        function browserNavigateHome() {
+            document.getElementById('browserAddressBar').value = 'STARHOME.net';
+            const homeHtml = `
+                <!DOCTYPE html>
+                <html>
+                <body style="background:#09090d; color:#fff; font-family:sans-serif; text-align:center; padding:50px 20px;">
+                    <h1 style="font-size:36px; font-weight:800; margin-bottom:10px;">STAR<span style="color:#f59e0b;">HOME</span>.net</h1>
+                    <p style="font-size:12px; color:#777; margin-bottom:30px;">Default Proxy Router & Web Search Hub</p>
+                    <div style="max-width:400px; margin:0 auto; background:#14141d; padding:20px; border-radius:14px; border:1px solid #222;">
+                        <span style="font-size:11px; color:#aaa; display:block; margin-bottom:10px;">Registered Custom Proxy Routes:</span>
+                        <div style="font-size:12px; color:#f59e0b;" class="mono">${Object.keys(customProxyRoutes).join('<br>') || 'No proxy routes registered yet.'}</div>
+                    </div>
+                </body>
+                </html>
+            `;
+            const blob = new Blob([homeHtml], { type: 'text/html' });
+            document.getElementById('browserIframe').src = URL.createObjectURL(blob);
+        }
+
+        function navigateBrowserUrl() {
+            const input = document.getElementById('browserAddressBar').value.trim();
+            if (!input) return;
+            if (input.startsWith('proxy://') && customProxyRoutes[input]) {
+                const blob = new Blob([customProxyRoutes[input]], { type: 'text/html' });
+                document.getElementById('browserIframe').src = URL.createObjectURL(blob);
+                return;
+            }
+            if (input === 'STARHOME.net') { browserNavigateHome(); return; }
+            let url = input;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                if (url.includes('.')) url = 'https://' + url;
+                else url = 'https://www.google.com/search?q=' + encodeURIComponent(url);
+            }
+            document.getElementById('browserIframe').src = url;
+        }
+
+        function browserNavigateBack() { try { document.getElementById('browserIframe').contentWindow.history.back(); } catch(e){} }
+        function browserRefresh() { document.getElementById('browserIframe').src = document.getElementById('browserIframe').src; }
+
+        // FILE MANAGER & STORAGE EXPANSION
         function openFileDB() {
             return new Promise((res, rej) => {
-                const req = indexedDB.open('star_files_db', 1);
+                const req = indexedDB.open('star_files_db_v3', 1);
                 req.onupgradeneeded = e => e.target.result.createObjectStore('files', { keyPath: 'id' });
                 req.onsuccess = e => res(e.target.result);
                 req.onerror = e => rej(e.target.error);
             });
         }
 
-        async function loadFiles() {
+        async function loadStorageFiles() {
             const db = await openFileDB();
             const tx = db.transaction('files', 'readonly');
             const req = tx.objectStore('files').getAll();
             req.onsuccess = () => {
                 const list = document.getElementById('userFilesList');
-                if (!list) return;
+                if (!list || !currentUser) return;
                 list.innerHTML = '';
                 const files = req.result || [];
-                document.getElementById('fileCountStat').textContent = files.length + ' files stored';
+                const limit = currentUser.storageLimit || 100;
+                document.getElementById('fileStorageStat').textContent = `Storage: ${files.length * 5}MB / ${limit}MB`;
+
                 files.forEach(f => {
                     const row = document.createElement('div');
-                    row.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center";
-                    row.innerHTML = `<span class="font-bold text-white text-xs">${f.name} <span class="text-[10px] text-slate-400">(${(f.size/(1024*1024)).toFixed(2)} MB)</span></span><button onclick="deleteFile('${f.id}')" class="px-3 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-[10px]">Delete</button>`;
+                    row.style.cssText = "padding:8px 12px; background:#14141a; border:1px solid #222; border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:11px;";
+                    row.innerHTML = `<span><i class="fa-solid fa-file" style="color:#aaa; margin-right:6px;"></i> ${f.name}</span><button onclick="deleteStorageFile('${f.id}')" style="padding:4px 8px; border-radius:4px; background:rgba(239,68,68,0.2); color:#ef4444; font-weight:700; font-size:9px; border:none; cursor:pointer;">Delete</button>`;
                     list.appendChild(row);
                 });
             };
         }
 
-        async function importFiles(e) {
+        async function importStorageFiles(e) {
             const db = await openFileDB();
             for (const file of e.target.files) {
-                if (file.size > MAX_UPLOAD_SIZE) { alert(`File "${file.name}" exceeds 250MB limit.`); continue; }
                 const tx = db.transaction('files', 'readwrite');
-                tx.objectStore('files').put({ id: 'file_' + Date.now() + Math.random(), name: file.name, size: file.size });
+                tx.objectStore('files').put({ id: 'file_' + Date.now() + Math.random(), name: file.name });
             }
-            loadFiles();
+            loadStorageFiles();
+            triggerOsNotification("Files Uploaded", "Files successfully saved to Star OS cloud storage.");
         }
 
-        async function deleteFile(id) {
+        async function buyStorageWithStars(amountMB, costStars) {
+            if ((currentUser.stars || 0) < costStars) { alert('Not enough Stars to buy storage!'); return; }
+            currentUser.stars -= costStars;
+            currentUser.storageLimit = (currentUser.storageLimit || 100) + amountMB;
+            saveUserToDB(currentUser);
+            updateUserStarDisplay();
+            loadStorageFiles();
+            triggerOsNotification("Storage Purchased", `Successfully unlocked +${amountMB}MB storage for ${costStars} 🌟!`);
+        }
+
+        async function deleteStorageFile(id) {
             const db = await openFileDB();
             const tx = db.transaction('files', 'readwrite');
             tx.objectStore('files').delete(id);
-            tx.oncomplete = () => loadFiles();
+            tx.oncomplete = () => loadStorageFiles();
         }
 
-        // Boot Sequence
-        window.addEventListener('DOMContentLoaded', () => {
+        // BOOT SEQUENCE
+        let bootInterval = null;
+        function runBootSequence() {
             let progress = 0;
             const bar = document.getElementById('bootBar');
-            const interval = setInterval(() => {
-                progress += Math.floor(Math.random() * 25) + 12;
+            const log = document.getElementById('bootLog');
+            const logs = ["Loading Star Engine Core...", "Initializing StarBank Ledger...", "Mounting Star+ Market...", "Ready!"];
+
+            document.getElementById('bootScreen').style.display = 'flex';
+            document.getElementById('bootScreen').style.opacity = '1';
+
+            bootInterval = setInterval(() => {
+                progress += 25;
+                log.textContent = logs[Math.min(Math.floor(progress / 25), logs.length - 1)];
                 if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(interval);
+                    clearInterval(bootInterval);
                     setTimeout(() => {
                         const boot = document.getElementById('bootScreen');
                         boot.style.opacity = '0';
-                        boot.style.transform = 'scale(1.08)';
-                        setTimeout(() => { boot.style.display = 'none'; checkAuth(); }, 800);
-                    }, 400);
+                        setTimeout(() => { boot.style.display = 'none'; checkAuth(); }, 500);
+                    }, 200);
                 }
                 bar.style.width = progress + '%';
             }, 100);
-        });
+        }
+
+        function skipBootSequence() {
+            clearInterval(bootInterval);
+            const boot = document.getElementById('bootScreen');
+            boot.style.opacity = '0';
+            setTimeout(() => { boot.style.display = 'none'; checkAuth(); }, 200);
+        }
+
+        function rebootSystem() { runBootSequence(); }
     </script>
 </body>
 </html>
